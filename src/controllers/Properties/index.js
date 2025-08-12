@@ -1,0 +1,144 @@
+import { PropertyModel } from "../../models/Properties/index.js";
+
+const validatePropertyData = (data) => {
+    const errors = [];
+
+    if (!data.property_name || data.property_name.trim() === "") {
+        errors.push("Property name is required");
+    }
+
+    if (!data.property_type) {
+        errors.push("Property type is required");
+    }
+
+    if (!data.square_feet || data.square_feet.trim() === "") {
+        errors.push("Square feet is required");
+    }
+
+    if (!data.owner_information) {
+        errors.push("Owner information is required");
+    } else {
+        const owner = data.owner_information;
+        if (!owner.full_name) errors.push("Owner full name is required");
+        if (!owner.email) errors.push("Owner email is required");
+        if (!owner.phone) errors.push("Owner phone is required");
+        if (!owner.address) errors.push("Owner address is required");
+    }
+
+    return errors;
+};
+
+
+export const createProperty = async (req, res) => {
+    try {
+        const errors = validatePropertyData(req.body);
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+
+        const property = new PropertyModel(req.body);
+        await property.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Property created successfully",
+            data: property
+        });
+    } catch (error) {
+        console.error("Create Property Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getAllProperties = async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+        } = req.query;
+
+        const filters = { is_deleted: false };
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const total = await PropertyModel.countDocuments(filters);
+
+        const properties = await PropertyModel.find(filters)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            page: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            totalRecords: total,
+            data: properties
+        });
+    } catch (error) {
+        console.error("Get Properties Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getPropertyByUUID = async (req, res) => {
+    try {
+        const { uuid } = req.params
+        const property = await PropertyModel.find(uuid);
+
+        if (!property || property.is_deleted) {
+            return res.status(404).json({ success: false, message: "Property not found" });
+        }
+
+        return res.status(200).json({ success: true, data: property });
+    } catch (error) {
+        console.error("Get Property Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const updatePropertyByUUID = async (req, res) => {
+    try {
+        const errors = validatePropertyData({ ...req.body, owner_information: req.body.owner_information || {} });
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+
+        const property = await PropertyModel.findByIdAndUpdate(
+            req.params.uuid,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!property) {
+            return res.status(404).json({ success: false, message: "Property not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Property updated successfully",
+            data: property
+        });
+    } catch (error) {
+        console.error("Update Property Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const deletePropertyByUUID = async (req, res) => {
+    try {
+        const property = await PropertyModel.findByIdAndUpdate(
+            req.params.uuid,
+            { is_deleted: true },
+            { new: true }
+        );
+
+        if (!property) {
+            return res.status(404).json({ success: false, message: "Property not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Property deleted successfully" });
+    } catch (error) {
+        console.error("Delete Property Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
