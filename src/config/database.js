@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-export const url=`mongodb+srv://${process.env.database_username}:${process.env.database_password}@lms-yoho.57koacr.mongodb.net/${process.env.db}`
+const url = `mongodb+srv://${process.env.db_user}:${process.env.db_pass}@smsdb.bwmu5qv.mongodb.net/${process.env.db_name}?retryWrites=true&w=majority&appName=smsdb/sms`
 
 const conenctionOptions = {
   // serverSelectionTimeoutMS: 5000,
