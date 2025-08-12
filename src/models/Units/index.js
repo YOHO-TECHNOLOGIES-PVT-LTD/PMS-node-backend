@@ -18,14 +18,6 @@ const UnitsSchema = new Schema({
         type: String,
         required: true
     },
-    unit_rent: {
-        type: String,
-        required: true
-    },
-    unit_deposit: {
-        type: String,
-        required: true
-    },
     uuid: {
         type: String,
         default: uuid

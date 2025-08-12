@@ -8,8 +8,6 @@ const validateUnitData = (data) => {
     if (!data.unit_name) errors.push("Unit name is required");
     if (!data.unit_sqft) errors.push("Unit sqft is required");
     if (!data.unit_address) errors.push("Unit address is required");
-    if (!data.unit_rent) errors.push("Unit rent is required");
-    if (!data.unit_deposit) errors.push("Unit deposit is required");
 
     return errors;
 };

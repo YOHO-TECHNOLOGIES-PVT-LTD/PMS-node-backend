@@ -1,32 +1,25 @@
 import mongoose, { Schema } from "mongoose";
 import { v4 as uuid} from "uuid"
 
-const PropertySchema = new Schema({
-    property_name: {
+const LandSchema = new Schema({
+    land_name: {
         type: String,
         required: true,
         unique: true
-    },
-    property_type: {
-        type: String,
-        enum: ["commercial", "villa", "apartment", "house"],
-        required: true,
-        default:"commercial"
-    },
-    total_units: {
-        type: String,
-    },
-    occupied_units: {
-        type: String,
-    },
-    vacant_units: {
-        type: String,
     },
     square_feet: {
         type: String,
         required: true,
     },
-    property_address : {
+    acre: {
+        type: String,
+        required: true,
+    },
+    cent: {
+        type: String,
+        required: true,
+    },
+    land_address : {
         type: String,
         required: true,
     },
@@ -64,6 +57,7 @@ const PropertySchema = new Schema({
         type: String,
         default: null
     }
-}, {timestamps: true})
+    
+},{timestamps: true})
 
-export const PropertyModel = mongoose.model("property", PropertySchema) 
+export const LandModel = mongoose.model("land", LandSchema)

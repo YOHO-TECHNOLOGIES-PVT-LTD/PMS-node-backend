@@ -1,7 +1,6 @@
 import cron from "node-cron"
-import { LeaseModel } from "../../models/Lease";
-import { TenantModel } from "../../models/Tenants";
-import { RentsModel } from "../../models/Rent";
+import { LeaseModel } from "../../models/Lease/index.js";
+import { TenantModel } from "../../models/Tenants/index.js";
 
 cron.schedule("0 0 * * *", async () => {
     console.log("Checking for leases expiring within the next 30 days...");
@@ -21,9 +20,8 @@ cron.schedule("0 0 * * *", async () => {
         }).populate({ path: "tenantId", model: "tenant", populate: { path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } } });
 
         for (const lease of expiringLeases) {
-            // Check if already recorded to avoid duplicates
             const alreadyExists = await LeaseModel.findOne({
-                leaseId: lease._id
+                _id: lease._id
             });
 
             if (!alreadyExists) {
@@ -31,8 +29,8 @@ cron.schedule("0 0 * * *", async () => {
                     tenantId: lease.tenantId?._id,
                     unitId: lease.tenantId?.unit?._id,
                     propertyId: lease.tenantId?.unit?.propertyId?._id,
-                    expiryDate: lease.lease_end_date,
-                    status: "pending"
+                    expiryDate: lease.lease_information?.end_date,
+                    status: "paid"
                 });
 
                 console.log(`Lease expiry record created for tenant: ${lease.tenantId?.personal_information?.full_name}`);
@@ -47,12 +45,74 @@ cron.schedule("0 0 * * *", async () => {
 
 export const getLeases = async (req, res) => {
     try {
-        const Leases = await RentsModel.find({ is_deleted: false }).populate({ path: "tenantId", model: "tenant", populate: { path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } } })
+        const Leases = await LeaseModel.find({ is_deleted: false }).populate({ path: "tenantId", model: "tenant", populate: { path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } } })
+
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        const leaseStats = await TenantModel.aggregate([
+            {
+                $facet: {
+                    activeLeases: [
+                        {
+                            $match: {
+                                "lease_duration.start_date": { $lte: today },
+                                "lease_duration.end_date": { $gte: today },
+                                is_active: true,
+                            }
+                        },
+                        { $count: "count" }
+                    ],
+                    expiredLeases: [
+                        {
+                            $match: {
+                                "lease_duration.end_date": { $lt: today }
+                            }
+                        },
+                        { $count: "count" }
+                    ],
+                    expiringSoonThisMonth: [
+                        {
+                            $match: {
+                                "lease_duration.end_date": {
+                                    $gte: today,
+                                    $lte: endOfMonth
+                                }
+                            }
+                        },
+                        { $count: "count" }
+                    ],
+                    totalDepositAmount: [
+                        {
+                            $group: {
+                                _id: null,
+                                total: { $sum: "$deposit" }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+
+
+        const activeLeases = leaseStats[0].activeLeases[0]?.count || 0
+        const expiredLeases = leaseStats[0].expiredLeases[0]?.count || 0
+        const expiringSoonThisMonth = leaseStats[0].expiringSoonThisMonth[0]?.count || 0
+        const totalDepositAmount = leaseStats[0].totalDepositAmount[0]?.total || 0
+
+        console.log(result);
 
         res.status.json({
             success: true,
             message: "Leases retrieved successfully",
-            data: Leases
+            data: {
+                Leases,
+                activeLeases,
+                expiredLeases,
+                expiringSoonThisMonth,
+                totalDepositAmount
+            }
         });
     } catch (error) {
         console.error(error);

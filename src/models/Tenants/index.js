@@ -52,6 +52,13 @@ const TenantsSchema = new Schema({
         type: mongoose.Types.ObjectId,
         required: true,
     },
+    rent: {
+        type: String,
+    },
+    deposit: {
+        type: String,
+        required: true
+    },
     uuid: {
         type: String,
         default: uuid

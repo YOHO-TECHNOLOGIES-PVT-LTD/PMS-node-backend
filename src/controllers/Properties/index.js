@@ -15,6 +15,10 @@ const validatePropertyData = (data) => {
         errors.push("Square feet is required");
     }
 
+    if (!data.property_address || data.property_address.trim() === "") {
+        errors.push("Property Address is required");
+    }
+
     if (!data.owner_information) {
         errors.push("Owner information is required");
     } else {
@@ -62,10 +66,73 @@ export const getAllProperties = async (req, res) => {
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const total = await PropertyModel.countDocuments(filters);
 
-        const properties = await PropertyModel.find(filters)
-            .skip(skip)
-            .limit(parseInt(limit))
-            .sort({ createdAt: -1 });
+        const properties = await PropertyModel.aggregate([
+            { $match: filters },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: parseInt(limit) },
+            {
+                $lookup: {
+                    from: "units",
+                    localField: "_id",
+                    foreignField: "propertyId",
+                    as: "units"
+                }
+            },
+            {
+                $lookup: {
+                    from: "tenants",
+                    localField: "units._id",
+                    foreignField: "unit",
+                    as: "tenants"
+                }
+            },
+            {
+                $addFields: {
+                    total_units: { $size: "$units" },
+                    occupied_units: {
+                        $size: {
+                            $filter: {
+                                input: '$units',
+                                as: "unit",
+                                cond: {
+                                    $in: ["$$unit._id", "$tenants.unit"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    vacant_units: { $subtract: ["$total_units", "$occupied_units"] },
+                    occupancy_rate: {
+                        $cond: [
+                            { $eq: ["$total_units", 0] },
+                            0,
+                            {
+                                $round: [
+                                    {
+                                        $multiply: [
+                                            { $divide: ["$occupied_units", "$total_units"] },
+                                            100
+                                        ]
+                                    },
+                                    2 
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                $project: {
+                    units: 0,
+                    tenants:0
+                }
+            }
+
+        ])
 
         return res.status(200).json({
             success: true,

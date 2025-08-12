@@ -44,7 +44,7 @@ export const getRents = async (req, res) => {
         if (!month || !year) {
             return res.status(400).json({ message: "Month and Year are required" });
         }
-
+        const now = new Date();
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
@@ -52,10 +52,60 @@ export const getRents = async (req, res) => {
             createdAt: { $gte: startDate, $lte: endDate }
         }).populate("propertyId tenantId");
 
+        const TotalDue = await TenantModel.aggregate([
+            {
+                $match: {
+                    tenant_type: "rent",
+                    createdAt: { $gte: startDate, $lte: endDate }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: "$rent" }
+                }
+            }
+        ]);
+
+        const totalDueAmount = TotalDue.length > 0 ? TotalDue[0].total : 0;
+
+        const stats = await RentsModel.aggregate([
+            {
+                $match: {
+                    due_date: { $gte: startOfMonth, $lte: endOfMonth },
+                    status: { $in: ["paid", "pending"] }
+                }
+            },
+            {
+                $lookup: {
+                    from: "tenants",
+                    localField: "tenant_id",
+                    foreignField: "_id",
+                    as: "tenant"
+                }
+            },
+            { $unwind: "$tenant" },
+            {
+                $group: {
+                    _id: "$status",
+                    totalAmount: { $sum: "$tenant.rent" }
+                }
+            }
+        ]);
+
+        const totalPaidThisMonth = stats.find(s => s._id === "paid")?.totalAmount || 0;
+        const totalPendingThisMonth = stats.find(s => s._id === "pending")?.totalAmount || 0;
+
+
         res.status.json({
             success: true,
-            message: "Leases retrieved successfully",
-            data: rents
+            message: "Rents retrieved successfully",
+            data: {
+                rents,
+                totalDueAmount,
+                totalPaidThisMonth,
+                totalPendingThisMonth
+            }
         });
     } catch (error) {
         console.error(error);

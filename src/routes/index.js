@@ -5,6 +5,9 @@ import UnitRouter from "./Units/index.js"
 import TenantRouter from "./Tenants/index.js"
 import RentRouter from "./Rent/index.js"
 import LeaseRouter from "./Lease/index.js"
+import maintenanceRoute from "./maintenance/index.js"
+import LandRouter from "./Land/index.js"
+import DashBoardRouter from "./Dashboard/index.js"
 
 const routes = express.Router()
 
@@ -14,5 +17,8 @@ routes.use('/unit', UnitRouter)
 routes.use('/tenant', TenantRouter)
 routes.use('/rent', RentRouter)
 routes.use('/lease', LeaseRouter)
+routes.use('/maintenance',maintenanceRoute)
+routes.use('/land', LandRouter)
+routes.use("/dashboard", DashBoardRouter)
 
 export default routes

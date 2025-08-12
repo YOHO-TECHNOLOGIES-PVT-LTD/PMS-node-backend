@@ -1,4 +1,5 @@
 import { PropertyModel } from "../../models/Properties/index.js";
+import { RentsModel } from "../../models/Rent/index.js";
 import { TenantModel } from "../../models/Tenants/index.js";
 import { UnitsModel } from "../../models/Units/index.js";
 
@@ -13,6 +14,7 @@ const validateTenantData = (data) => {
 
     // Unit
     if (!data.unit) errors.push("Unit is required");
+    if (!data.deposit) errors.push("Deposit is required");
 
     return errors;
 };
@@ -29,8 +31,8 @@ export const createTenant = async (req, res) => {
             return res.status(400).json({ message: "Unit not found" })
         }
 
-        const existingTenant = await TenantModel.findOne({unit: req.body.unit})
-        if(existingTenant){
+        const existingTenant = await TenantModel.findOne({ unit: req.body.unit })
+        if (existingTenant) {
             return res.status(400).json({ message: "Already Occupied this unit" })
         }
 
@@ -67,12 +69,35 @@ export const getAllTenants = async (req, res) => {
             .limit(parseInt(limit))
             .sort({ createdAt: -1 })
 
+        const startOfMonth = moment().startOf("month").toDate();
+        const endOfMonth = moment().endOf("month").toDate();
+
+        const paidThisMonth = await RentsModel.find({
+            status: "paid",
+            createdAt: {$gte: startOfMonth, $lte: endOfMonth}
+        })
+
+        const overDueThisMonth = await RentsModel.find({
+            status: "overdue",
+            createdAt: {$gte: startOfMonth, $lte: endOfMonth}
+        })
+
+        const pendingThisMonth = await RentsModel.find({
+            status: "pending",
+            createdAt: {$gte: startOfMonth, $lte: endOfMonth}
+        })
+
         return res.status(200).json({
             success: true,
             page: parseInt(page),
             totalPages: Math.ceil(total / limit),
             totalRecords: total,
-            data: tenants
+            data: {
+                tenants,
+                paidThisMonth,
+                overDueThisMonth,
+                pendingThisMonth
+            }
         });
     } catch (error) {
         console.error("Get Tenants Error:", error);
@@ -84,7 +109,7 @@ export const getTenantByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
         const tenant = await TenantModel.findOne({ uuid: uuid })
-        .populate({ path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } })
+            .populate({ path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } })
 
         if (!tenant || tenant.is_deleted) {
             return res.status(404).json({ success: false, message: "Tenant not found" });
