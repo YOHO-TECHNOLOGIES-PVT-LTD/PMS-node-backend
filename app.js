@@ -4,7 +4,7 @@ import db from "./src/config/database.js"
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors"
-import router from "./src/routes/index.js";
+import routes from "./src/routes/index.js";
 
 
 dotenv.config();
@@ -16,7 +16,7 @@ app.use(morgan('combined'))
 app.use(cors())
 app.use(cors({origin:["http://localhost:5173","http://localhost:5174"]}))
 
-app.use("/api", router)
+app.use('/api',routes)
 
 const PORT = process.env.PORT
 
