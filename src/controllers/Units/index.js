@@ -1,0 +1,132 @@
+import { PropertyModel } from "../../models/Properties/index.js";
+import { UnitsModel } from "../../models/Units/index.js";
+
+const validateUnitData = (data) => {
+    const errors = [];
+
+    if (!data.propertyId) errors.push("Property ID is required");
+    if (!data.unit_name) errors.push("Unit name is required");
+    if (!data.unit_sqft) errors.push("Unit sqft is required");
+    if (!data.unit_address) errors.push("Unit address is required");
+    if (!data.unit_rent) errors.push("Unit rent is required");
+    if (!data.unit_deposit) errors.push("Unit deposit is required");
+
+    return errors;
+};
+
+export const createUnit = async (req, res) => {
+    try {
+        const errors = validateUnitData(req.body);
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+
+        const property = await PropertyModel.findOne({ _id: req.body.propertyId })
+        if (!property) {
+            return res.status(400).json({ message: "Property not found" })
+        }
+
+        const unit = new UnitsModel(req.body);
+        await unit.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Unit created successfully",
+            data: unit
+        });
+    } catch (error) {
+        console.error("Create Unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getAllUnits = async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+        } = req.query;
+
+        const filters = { is_deleted: false };
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const total = await UnitsModel.countDocuments(filters);
+
+        const units = await UnitsModel.find(filters)
+            .populate({path: "propertyId", model: "property"})
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ createdAt: -1 })
+
+        return res.status(200).json({
+            success: true,
+            page: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            totalRecords: total,
+            data: units
+        });
+    } catch (error) {
+        console.error("Get Units Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const getUnitByUUID = async (req, res) => {
+    try {
+        const { uuid } = req.params
+        const unit = await UnitsModel.findOne({ uuid: uuid }).populate({path: "propertyId", model: "property"});
+
+        if (!unit || unit.is_deleted) {
+            return res.status(404).json({ success: false, message: "Unit not found" });
+        }
+
+        return res.status(200).json({ success: true, data: unit });
+    } catch (error) {
+        console.error("Get Unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const updateUnitByUUID = async (req, res) => {
+    try {
+        const { uuid } = req.params
+        const unit = await UnitsModel.findOneAndUpdate(
+            { uuid: uuid },
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!unit) {
+            return res.status(404).json({ success: false, message: "Unit not found" });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Unit updated successfully",
+            data: unit
+        });
+    } catch (error) {
+        console.error("Update Unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const deleteUnitByUUID = async (req, res) => {
+    try {
+        const { uuid } = req.params
+        const unit = await UnitsModel.findOneAndUpdate(
+            { uuid: uuid },
+            { is_deleted: true },
+            { new: true }
+        );
+
+        if (!unit) {
+            return res.status(404).json({ success: false, message: "Unit not found" });
+        }
+
+        return res.status(200).json({ success: true, message: "Unit deleted successfully" });
+    } catch (error) {
+        console.error("Delete Unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};

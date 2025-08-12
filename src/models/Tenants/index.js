@@ -15,7 +15,7 @@ const TenantsSchema = new Schema({
             type: String,
             required: true
         },
-        Address : {
+        address : {
             type: String,
             required: true
         }
@@ -30,7 +30,7 @@ const TenantsSchema = new Schema({
             default: null
         }
     },
-    emergency_conatct: {
+    emergency_contact: {
         name: {
             type: String
         },
@@ -38,7 +38,7 @@ const TenantsSchema = new Schema({
             type: String
         },
         relation: {
-            type: [String],
+            type: String,
             enum: ["spouse", "parent", "sibling", "friend", "other"],
             default: "other"
         }
@@ -47,14 +47,6 @@ const TenantsSchema = new Schema({
         type: String,
         enum: ["rent", "lease"],
         default: "rent"
-    },
-    property_type: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-    },
-    property_name: {
-        type: mongoose.Types.ObjectId,
-        required: true,
     },
     unit: {
         type: mongoose.Types.ObjectId,

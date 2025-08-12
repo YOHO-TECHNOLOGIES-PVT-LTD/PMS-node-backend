@@ -8,7 +8,7 @@ const UnitsSchema = new Schema({
     },
     unit_name: {
         type: String,
-        required: true
+        required: true,
     },
     unit_sqft: {
         type: String,
@@ -45,4 +45,4 @@ const UnitsSchema = new Schema({
 
 }, {timestamps: true})
 
-export const UnitsModel = mongoose.model("units", UnitsSchema)
+export const UnitsModel = mongoose.model("unit", UnitsSchema)

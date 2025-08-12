@@ -83,7 +83,7 @@ export const getAllProperties = async (req, res) => {
 export const getPropertyByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
-        const property = await PropertyModel.find(uuid);
+        const property = await PropertyModel.findOne({ uuid: uuid });
 
         if (!property || property.is_deleted) {
             return res.status(404).json({ success: false, message: "Property not found" });
@@ -98,13 +98,9 @@ export const getPropertyByUUID = async (req, res) => {
 
 export const updatePropertyByUUID = async (req, res) => {
     try {
-        const errors = validatePropertyData({ ...req.body, owner_information: req.body.owner_information || {} });
-        if (errors.length > 0) {
-            return res.status(400).json({ success: false, errors });
-        }
-
-        const property = await PropertyModel.findByIdAndUpdate(
-            req.params.uuid,
+        const { uuid } = req.params
+        const property = await PropertyModel.findOneAndUpdate(
+            { uuid: uuid },
             req.body,
             { new: true, runValidators: true }
         );
@@ -126,8 +122,9 @@ export const updatePropertyByUUID = async (req, res) => {
 
 export const deletePropertyByUUID = async (req, res) => {
     try {
-        const property = await PropertyModel.findByIdAndUpdate(
-            req.params.uuid,
+        const { uuid } = req.params
+        const property = await PropertyModel.findOneAndUpdate(
+            { uuid: uuid },
             { is_deleted: true },
             { new: true }
         );
