@@ -1,5 +1,5 @@
 import express from 'express'
-import { ChangeUserPassword, GetUserDetails, LoginUser, RegisterUser, UpdateUser } from '../../controls/authentication/index.js'
+import { ChangeUserPassword, GetUserDetails, LoginUser, RegisterUser, UpdateUser } from '../../controllers/authentication/index.js'
 import { AuthVerify } from '../../middelware/authverify.js'
 const authroutes = express.Router()
 

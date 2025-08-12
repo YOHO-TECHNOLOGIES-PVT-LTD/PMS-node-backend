@@ -1,14 +1,15 @@
 import bcrypt from "bcryptjs"
 import { UserModel } from "../../models/authentication/index.js"
 import { GetUUID, JWTEncoded } from "../../utils/authhelper.js"
+import { validation } from "../../validations/index.js"
 
 export const RegisterUser=async (req,res) => {
     try {
-        const {email,full_name,password,role} = req.body
+        const {email,full_name,password,role} = validation.authRegiter(req.body)
 
         const user = await UserModel.findOne({email})
         if (user) {
-           return res.status(302).json({status:false,message:"user already exists."})
+           return res.status(302).json({success:false,message:"user already exists."})
         }
 
         const hashpass = bcrypt.hashSync(password,13)
@@ -23,10 +24,10 @@ export const RegisterUser=async (req,res) => {
 
         await newuser.save()
 
-        res.status(201).json({status:true,message:"new user created",newuser})
+        res.status(201).json({success:true,message:"new user created",newuser})
 
     } catch (error) {
-        res.status(500).json({status:false,message:error.message})
+        res.status(500).json({success:false,message:error.message})
     }
 }
 
@@ -35,31 +36,31 @@ export const LoginUser=async (req,res) => {
     try {
         const {email,password} = req.body
         
-        const user = await UserModel.findOne({email})
-        
+        const user = await UserModel.findOne({email:email.toLowerCase()})
+
         if (!user) {
-            return res.status(404).json({status:false,message:'user not founded'})
+            return res.status(404).json({success:false,message:'user not founded'})
         }
         
         const valid = bcrypt.compareSync(password,user?.password)
         
         if (valid) {
             const {token} =await JWTEncoded(user)
-            res.status(200).json({status:true,message:"login success",token})
+            res.status(200).json({success:true,message:"login success",token})
         }else{
-            res.status(400).json({status:false,message:"password doesn't match"})
+            res.status(400).json({success:false,message:"password doesn't match"})
         }
         
     } catch (error) {
-        res.status(500).json({status:false,message:error.message})
+        res.status(500).json({success:false,message:error.message})
     }
 }
 
 export const GetUserDetails= async(req,res)=>{
     try {
-        res.status(200).json({status:true,message:'profile data fetched',data:req?.user})
+        res.status(200).json({success:true,message:'profile data fetched',data:req?.user})
     } catch (error) {
-        res.status(500).json({status:false,message:error.message})
+        res.status(500).json({success:false,message:error.message})
     }
 }
 
@@ -69,9 +70,9 @@ export const UpdateUser=async (req,res) => {
         const {uuid} = req.user
         const user = await UserModel.findOneAndUpdate({uuid},{...value})
 
-        res.status(200).json({status:true,message:'profile updated'})
+        res.status(200).json({success:true,message:'profile updated'})
     } catch (error) {
-        res.status(500).json({status:false,message:error.message})
+        res.status(500).json({success:false,message:error.message})
     }
 }
 
@@ -84,23 +85,23 @@ export const ChangeUserPassword = async(req,res)=>{
 
         const valid = bcrypt.compareSync(old_password,data.password)
         if (!valid) {
-            return res.status(400).json({status:false,message:"old password incorrect"})
+            return res.status(400).json({success:false,message:"old password incorrect"})
         }
 
         const hashpass = bcrypt.hashSync(new_password,13)
 
         await UserModel.updateOne({uuid:data.uuid},{password:hashpass})
 
-        res.status(200).json({status:true,message:"password updated"})
+        res.status(200).json({success:true,message:"password updated"})
     } catch (error) {
-        res.status(500).json({status:false,message:error.message})
+        res.status(500).json({success:false,message:error.message})
     }
 }
 
-export const LogoutUser=async (req,res) => {
-    try {
+// export const LogoutUser=async (req,res) => {
+//     try {
         
-    } catch (error) {
-        res.status(500).json({status:false,message:error.message})
-    }
-}
+//     } catch (error) {
+//         res.status(500).json({success:false,message:error.message})
+//     }
+// }
