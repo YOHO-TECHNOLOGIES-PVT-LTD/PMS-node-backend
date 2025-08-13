@@ -1,47 +1,57 @@
 import cron from "node-cron"
 import { LeaseModel } from "../../models/Lease/index.js";
 import { TenantModel } from "../../models/Tenants/index.js";
+import { NotifyModel } from "../../models/Notification/index.js";
 
-cron.schedule("0 0 * * *", async () => {
-    console.log("Checking for leases expiring within the next 30 days...");
+// cron.schedule("* * * * *", async () => {
+//     console.log("Checking for leases expiring within the next 30 days...");
 
-    try {
-        const today = new Date();
-        const oneMonthLater = new Date();
-        oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+//     try {
+//         const today = new Date();
+//         const oneMonthLater = new Date();
+//         oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
 
-        const expiringLeases = await TenantModel.find({
-            tenant_type: "lease",
-            is_active: true,
-            is_deleted: false,
-            lease_information: {
-                end_date: { $gte: today, $lte: oneMonthLater }
-            }
-        }).populate({ path: "tenantId", model: "tenant", populate: { path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } } });
+//         const expiringLeases = await TenantModel.find({
+//             tenant_type: "lease",
+//             is_active: true,
+//             is_deleted: false,
+//             // lease_information: {
+//             //     end_date: { $gte: today, $lte: oneMonthLater }
+//             // }
+//         }).populate({ path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } });
 
-        for (const lease of expiringLeases) {
-            const alreadyExists = await LeaseModel.findOne({
-                _id: lease._id
-            });
+//         console.log("Exppppp", expiringLeases)
 
-            if (!alreadyExists) {
-                await LeaseModel.create({
-                    tenantId: lease.tenantId?._id,
-                    unitId: lease.tenantId?.unit?._id,
-                    propertyId: lease.tenantId?.unit?.propertyId?._id,
-                    expiryDate: lease.lease_information?.end_date,
-                    status: "paid"
-                });
+//         if(!expiringLeases){
+//             res.status(400).json({message: "No leases found"})
+//         }
 
-                console.log(`Lease expiry record created for tenant: ${lease.tenantId?.personal_information?.full_name}`);
-            }
-        }
+//         for (const lease of expiringLeases) {
+//             const alreadyExists = await LeaseModel.findOne({
+//                 _id: lease._id
+//             });
 
-        console.log("Lease expiry check complete!");
-    } catch (err) {
-        console.error("Error checking lease expiries:", err);
-    }
-});
+//             if (!alreadyExists) {
+//                 const leases = await LeaseModel.create({
+//                     tenantId: lease._id,
+//                     expiryDate: alreadyExists?.tenantId?.lease_information?.end_date,
+//                 });
+//                 await NotifyModel.create({
+//                     title: `Lease Expiring Soon`,
+//                     description: `${lease.personal_information.full_name} lease for ${lease.unit.name} at ${lease.unit.propertyId.property_name} will expire in ${leases.expiryDate}`,
+//                     notify_type: 'rent',
+//                     created_at: Date.now()
+//                 })
+
+//                 console.log(`Lease expiry record created for tenant: ${lease.personal_information?.full_name}`);
+//             }
+//         }
+
+//         console.log("Lease expiry check complete!");
+//     } catch (err) {
+//         console.error("Error checking lease expiries:", err);
+//     }
+// });
 
 export const getLeases = async (req, res) => {
     try {
@@ -101,9 +111,7 @@ export const getLeases = async (req, res) => {
         const expiringSoonThisMonth = leaseStats[0].expiringSoonThisMonth[0]?.count || 0
         const totalDepositAmount = leaseStats[0].totalDepositAmount[0]?.total || 0
 
-        console.log(result);
-
-        res.status.json({
+        res.status(200).json({
             success: true,
             message: "Leases retrieved successfully",
             data: {
@@ -116,6 +124,6 @@ export const getLeases = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error fetching rents" });
+        res.status(500).json({ message: "Error fetching Leases" });
     }
 };

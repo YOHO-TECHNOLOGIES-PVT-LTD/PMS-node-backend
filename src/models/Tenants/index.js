@@ -1,21 +1,21 @@
 import mongoose, { Schema } from "mongoose";
-import {v4 as uuid} from "uuid"
+import { v4 as uuid } from "uuid"
 
 const TenantsSchema = new Schema({
-    personal_information : {
-        full_name : {
+    personal_information: {
+        full_name: {
             type: String,
             required: true
         },
-        email : {
+        email: {
             type: String,
             required: true
         },
-        phone : {
+        phone: {
             type: String,
             required: true
         },
-        address : {
+        address: {
             type: String,
             required: true
         }
@@ -70,8 +70,39 @@ const TenantsSchema = new Schema({
     is_deleted: {
         type: Boolean,
         default: false
+    },
+    financial_information: {
+        rent:{
+            type: String
+        },
+        cgst: {
+            type: String,
+        },
+        sgst: {
+            type: String,
+        },
+        tds: {
+            type: String
+        },
+        maintenance:{
+            type: String
+        },
+    },
+    bank_details: {
+        bank_name: {
+            type: String,
+        },
+        account_number: {
+            type: String,
+        },
+        bank_branch: {
+            type: String,
+        },
+        bank_IFSC: {
+            type: String,
+        }
     }
 
-}, {timestamps: true})
+}, { timestamps: true })
 
 export const TenantModel = mongoose.model("tenant", TenantsSchema)

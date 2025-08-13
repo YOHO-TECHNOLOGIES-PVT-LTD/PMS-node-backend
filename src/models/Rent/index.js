@@ -6,11 +6,6 @@ const RentsSchema = new Schema({
         type: String,
         default: uuid
     },
-    propertyId: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-        ref: "property"
-    },
     tenantId: {
         type: mongoose.Types.ObjectId,
         required: true,

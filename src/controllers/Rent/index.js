@@ -5,6 +5,7 @@ import fs from "fs";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import { TenantModel } from "../../models/Tenants/index.js";
+import { NotifyModel } from "../../models/Notification/index.js";
 
 cron.schedule("5 0 1 * *", async () => {
     console.log("Starting monthly rent creation...");
@@ -14,19 +15,27 @@ cron.schedule("5 0 1 * *", async () => {
             tenant_type: "rent",
             is_active: true,
             is_deleted: false
-        }).populate({ path: "unit", model: "unit" });
+        }).populate({ path: "unit", model: "unit", populate:{path: "propertyId" , model: "property"} });
 
         for (const tenant of tenants) {
             const unitDetails = await UnitsModel.findById(tenant.unit);
 
             if (!unitDetails) continue;
 
-            await RentsModel.create({
-                propertyId: tenant.property_name,
+            const Rent = await RentsModel.create({
                 tenantId: tenant._id,
                 paymentDueDay: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
                 status: "pending"
             });
+
+            const PaymentDueDay = Rent.paymentDueDay.toDateString()
+
+            await NotifyModel.create({
+                title: `Rent Payment Overdue ${tenant?.unit?.propertyId?.property_name}`,
+                description: `${tenant.personal_information.full_name} ${tenant.unit.unit_name} has rent due ${PaymentDueDay} (${tenant.rent})`,
+                notify_type: 'rent',
+                created_at: Date.now()
+            })
 
             console.log(`Rent created for tenant ${tenant.personal_information.full_name}`);
         }
@@ -44,13 +53,13 @@ export const getRents = async (req, res) => {
         if (!month || !year) {
             return res.status(400).json({ message: "Month and Year are required" });
         }
-        const now = new Date();
+
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
         const rents = await RentsModel.find({
             createdAt: { $gte: startDate, $lte: endDate }
-        }).populate("propertyId tenantId");
+        }).populate({path: "tenantId", model: "tenant" , populate: {path: "unit", model: "unit"}});
 
         const TotalDue = await TenantModel.aggregate([
             {
@@ -72,7 +81,7 @@ export const getRents = async (req, res) => {
         const stats = await RentsModel.aggregate([
             {
                 $match: {
-                    due_date: { $gte: startOfMonth, $lte: endOfMonth },
+                    paymentDueDay: { $gte: startDate, $lte: endDate },
                     status: { $in: ["paid", "pending"] }
                 }
             },
@@ -97,7 +106,7 @@ export const getRents = async (req, res) => {
         const totalPendingThisMonth = stats.find(s => s._id === "pending")?.totalAmount || 0;
 
 
-        res.status.json({
+        res.status(200).json({
             success: true,
             message: "Rents retrieved successfully",
             data: {
@@ -118,16 +127,16 @@ export const getRents = async (req, res) => {
 export const markRentPaidByUUID = async (req, res) => {
     try {
         const { uuid } = req.params;
-
+        const { status } = req.body;
         const rent = await RentsModel.findByIdAndUpdate(
             { uuid: uuid },
-            { status: "paid", reminderShown: false },
+            { status: status, reminderShown: false },
             { new: true }
         );
 
         if (!rent) return res.status(404).json({ message: "Rent not found" });
 
-        res.json({ message: "Rent marked as paid", rent });
+        res.status(200).json({ message: "Rent marked as paid", rent });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
