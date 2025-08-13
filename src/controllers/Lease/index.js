@@ -15,10 +15,12 @@ import { NotifyModel } from "../../models/Notification/index.js";
 //             tenant_type: "lease",
 //             is_active: true,
 //             is_deleted: false,
-//             lease_information: {
-//                 end_date: { $gte: today, $lte: oneMonthLater }
-//             }
-//         }).populate({ path: "tenantId", model: "tenant", populate: { path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } } });
+//             // lease_information: {
+//             //     end_date: { $gte: today, $lte: oneMonthLater }
+//             // }
+//         }).populate({ path: "unit", model: "unit", populate: { path: "propertyId", model: "property" } });
+
+//         console.log("Exppppp", expiringLeases)
 
 //         if(!expiringLeases){
 //             res.status(400).json({message: "No leases found"})
@@ -31,17 +33,17 @@ import { NotifyModel } from "../../models/Notification/index.js";
 
 //             if (!alreadyExists) {
 //                 const leases = await LeaseModel.create({
-//                     tenantId: lease.tenantId?._id,
-//                     expiryDate: lease.lease_information?.end_date,
+//                     tenantId: lease._id,
+//                     expiryDate: alreadyExists?.tenantId?.lease_information?.end_date,
 //                 });
 //                 await NotifyModel.create({
 //                     title: `Lease Expiring Soon`,
-//                     description: `${lease.tenantId.personal_information.full_name} lease for ${lease.tenantId.unit.name} at ${lease.tenantId.unit.propertyId.property_name} will expire in ${leases.expiryDate}`,
+//                     description: `${lease.personal_information.full_name} lease for ${lease.unit.name} at ${lease.unit.propertyId.property_name} will expire in ${leases.expiryDate}`,
 //                     notify_type: 'rent',
 //                     created_at: Date.now()
 //                 })
 
-//                 console.log(`Lease expiry record created for tenant: ${lease.tenantId?.personal_information?.full_name}`);
+//                 console.log(`Lease expiry record created for tenant: ${lease.personal_information?.full_name}`);
 //             }
 //         }
 
@@ -109,7 +111,7 @@ export const getLeases = async (req, res) => {
         const expiringSoonThisMonth = leaseStats[0].expiringSoonThisMonth[0]?.count || 0
         const totalDepositAmount = leaseStats[0].totalDepositAmount[0]?.total || 0
 
-        res.status.json({
+        res.status(200).json({
             success: true,
             message: "Leases retrieved successfully",
             data: {
@@ -122,6 +124,6 @@ export const getLeases = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error fetching rents" });
+        res.status(500).json({ message: "Error fetching Leases" });
     }
 };

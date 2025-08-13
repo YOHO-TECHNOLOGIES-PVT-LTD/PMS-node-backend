@@ -17,7 +17,7 @@ const LeaseSchema = new Schema({
     },
     expiryDate: {
         type: String,
-        required: true
+        // required: true
     },
     is_active: {
         type: Boolean,
