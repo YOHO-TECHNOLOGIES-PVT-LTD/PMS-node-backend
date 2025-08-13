@@ -33,6 +33,7 @@ export const JWTEncoded = async(data)=>{
         encrypt+=cipher.final('hex')
     
         return {
+            iv,
             token:encrypt
         }
 
@@ -63,4 +64,10 @@ export const JWTDecoded = async(data)=>{
 
 export const GetUUID = async ()=>{
     return v4()
+}
+
+export const generateOtp = async()=>{
+    const otp = Math.floor(100000 + Math.random() * 900000)
+    const token =crypto.randomBytes(5).toString('hex')
+    return {otp, token}
 }

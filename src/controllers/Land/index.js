@@ -1,3 +1,4 @@
+import { ActivityLogModel } from "../../models/activity_log/index.js";
 import { LandModel } from "../../models/Land/index.js";
 
 
@@ -37,12 +38,20 @@ const validateLandData = (data) => {
 export const createLand = async (req, res) => {
     try {
         const errors = validateLandData(req.body);
+        const user = req.user
         if (errors.length > 0) {
             return res.status(400).json({ success: false, errors });
         }
 
         const Land = new LandModel(req.body);
         await Land.save();
+
+        await ActivityLogModel.create({
+            userId: user?._id,
+            title:`new land added`,
+            details:`${user?.first_name} to added new land details.`,
+            action:'save'
+        })
 
         return res.status(201).json({
             success: true,
@@ -104,6 +113,7 @@ export const getLandByUUID = async (req, res) => {
 export const updateLandByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const Land = await LandModel.findOneAndUpdate(
             { uuid: uuid },
             req.body,
@@ -113,6 +123,13 @@ export const updateLandByUUID = async (req, res) => {
         if (!Land) {
             return res.status(404).json({ success: false, message: "Land not found" });
         }
+
+        await ActivityLogModel.create({
+            userId: user._id,
+            title:`update land info`,
+            details:`change the db info for land id is ${Land._id} and ${Land.land_name} `,
+            action:`findOneAndUpdate`,
+        })
 
         return res.status(200).json({
             success: true,
@@ -128,6 +145,7 @@ export const updateLandByUUID = async (req, res) => {
 export const deleteLandByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const Land = await LandModel.findOneAndUpdate(
             { uuid: uuid },
             { is_deleted: true },
@@ -137,6 +155,13 @@ export const deleteLandByUUID = async (req, res) => {
         if (!Land) {
             return res.status(404).json({ success: false, message: "Land not found" });
         }
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'soft delete',
+            details:`to delete the land ${Land.land_name} and id ${Land._id} in db`,
+            action:'findOneAndUpdate'
+        })
 
         return res.status(200).json({ success: true, message: "Land deleted successfully" });
     } catch (error) {

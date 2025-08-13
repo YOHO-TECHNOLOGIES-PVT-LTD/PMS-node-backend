@@ -10,12 +10,30 @@ const maintenanceSchema = new mongoose.Schema({
         ref:"property",
         required:true,
     },
+    unitId:{
+        type:mongoose.Types.ObjectId,
+        ref:"unit",
+        required:true,
+    },
     full_name:{
         type:String,
         required:true,
     },
+    title:{
+        type:String,
+        required:true,
+    },
+    description:{
+        type:String,
+        required:true,
+    },
+    estmate_cost:{
+        type:Number,
+        required:true,
+    },
     category:{
         type:String,
+        required:true,
     },
     scheduled:{
         type:Date,

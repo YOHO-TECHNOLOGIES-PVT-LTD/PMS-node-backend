@@ -1,0 +1,30 @@
+import { ActivityLogModel } from "../../models/activity_log/index.js"
+
+
+export const GetAllActivity = async(req,res)=>{
+    try {
+        let {page = 1, perpage = 10} = req.query
+        page = parseInt(page)
+        perpage =parseInt(perpage)
+        const data = await ActivityLogModel.find()
+                    .skip((page-1)*perpage)
+                    .limit(perpage)
+                    .sort({createdAt:-1})
+                    
+        res.status(200).json({success:true,message:"all activity fetched",data})
+    } catch (error) {
+        res.status(500).json({success:false,message:error.message})
+    }
+}
+
+export const GetByIdActivity = async(req,res)=>{
+    try {
+        const {uuid} =req.params
+
+        const data = await ActivityLogModel.findOne({uuid})
+
+        res.status(200).json({success:true,message:'data fetched',data})
+    } catch (error) {
+        res.status(500).json({success:false,message:error.message})
+    }
+}

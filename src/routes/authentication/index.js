@@ -5,7 +5,7 @@ const authroutes = express.Router()
 
 authroutes.post('/register',RegisterUser)
 authroutes.post('/login',LoginUser)
-authroutes.get('/me',GetUserDetails)
+authroutes.get('/me',AuthVerify(["owner","admin","manager","finance"]),GetUserDetails)
 authroutes.put('/update',AuthVerify(["owner","admin","manager","finance"]),UpdateUser)
 authroutes.put('/change-pass',AuthVerify(["owner","admin","manager","finance"]),ChangeUserPassword)
 // authroutes.delete()

@@ -2,10 +2,11 @@ import bcrypt from "bcryptjs"
 import { UserModel } from "../../models/authentication/index.js"
 import { GetUUID, JWTEncoded } from "../../utils/authhelper.js"
 import { validation } from "../../validations/index.js"
+import { sessionModel } from "../../models/authentication/common.js"
 
 export const RegisterUser=async (req,res) => {
     try {
-        const {email,full_name,password,role} = validation.authRegiter(req.body)
+        const {email,first_name,password,role,last_name, phone_number,address} = validation.authRegiter(req.body)
 
         const user = await UserModel.findOne({email})
         if (user) {
@@ -18,8 +19,11 @@ export const RegisterUser=async (req,res) => {
             uuid: await GetUUID(),
             email,
             password:hashpass,
-            full_name,
+            first_name,
             role,
+            last_name,
+            phone_number,
+            address
         })
 
         await newuser.save()
@@ -45,8 +49,9 @@ export const LoginUser=async (req,res) => {
         const valid = bcrypt.compareSync(password,user?.password)
         
         if (valid) {
-            const {token} =await JWTEncoded(user)
-            res.status(200).json({success:true,message:"login success",token})
+            const {token,iv} =await JWTEncoded(user)
+            // await sessionModel.create({token,iv,userId:user._id})
+            res.status(200).json({success:true,message:"login success",data:{token,role:user.role},otpVerify:false})
         }else{
             res.status(400).json({success:false,message:"password doesn't match"})
         }
@@ -58,12 +63,7 @@ export const LoginUser=async (req,res) => {
 
 export const GetUserDetails= async(req,res)=>{
     try {
-        console.log(req.user, "user")
-        const profile = await UserModel.findById({_id: req.user._id})
-        if(!profile){
-           return res.status(400).json({message: "Profile not found"})
-        }
-        res.status(200).json({success:true,message:'profile data fetched',data:profile})
+        res.status(200).json({success:true,message:'profile data fetched',data:req.user})
     } catch (error) {
         res.status(500).json({success:false,message:error.message})
     }

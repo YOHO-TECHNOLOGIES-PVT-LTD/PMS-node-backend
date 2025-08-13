@@ -1,11 +1,25 @@
 import Joi from "joi";
 
 const authSchema = Joi.object({
-    full_name: Joi.string().min(6).required().messages({
-        "string.base": `"full_name" should be a type of "string"`,
-        "string.empty": `"full_name" cannot be an empty field`,
-        "string.min": `"full_name" should have a minimum length of {#limit}`,
-        "any.required": `"full_name" is a required field`,
+    first_name: Joi.string().min(4).required().messages({
+        "string.base": `"first_name" should be a type of "string"`,
+        "string.empty": `"first_name" cannot be an empty field`,
+        "string.min": `"first_name" should have a minimum length of {#limit}`,
+        "any.required": `"first_name" is a required field`,
+    }),
+
+    last_name: Joi.string().min(1).required().messages({
+        "string.base": `"last_name" should be a type of "string"`,
+        "string.empty": `"last_name" cannot be an empty field`,
+        "string.min": `"last_name" should have a minimum length of {#limit}`,
+        "any.required": `"last_name" is a required field`,
+    }),
+
+    phone_number:Joi.string().min(10).required().messages({
+        "string.base": `"phone_number" should be a type of "string"`,
+        "string.empty": `"phone_number" cannot be an empty field`,
+        "string.min": `"phone_number" should have a minimum length of {#limit}`,
+        "any.required": `"phone_number" is a required field`,
     }),
 
     email: Joi.string().email().required().messages({
@@ -20,6 +34,14 @@ const authSchema = Joi.object({
         "string.empty": `"password" cannot be an empty field`,
         "any.required": `"password" is a required field`,
     }),
+
+    address:Joi.string().required().messages({
+        "string.base": `"address" should be a type of "string"`,
+        "string.empty": `"address" cannot be an empty field`,
+        "any.required": `"address" is a required field`,
+    }),
+
+    image:Joi.string().optional(),
 
     role: Joi.string().required().messages({
         "string.base": `"role" should be a type of "string"`,

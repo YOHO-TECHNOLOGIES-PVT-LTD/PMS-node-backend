@@ -1,3 +1,4 @@
+import { ActivityLogModel } from "../../models/activity_log/index.js";
 import moment from "moment";
 import { PropertyModel } from "../../models/Properties/index.js";
 import { RentsModel } from "../../models/Rent/index.js";
@@ -23,6 +24,7 @@ const validateTenantData = (data) => {
 export const createTenant = async (req, res) => {
     try {
         const errors = validateTenantData(req.body);
+        const user = req.user
         if (errors.length > 0) {
             return res.status(400).json({ success: false, errors });
         }
@@ -39,6 +41,13 @@ export const createTenant = async (req, res) => {
 
         const tenant = new TenantModel(req.body);
         await tenant.save();
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'create new tenant',
+            details:`${user.first_name} to created new tenant are ${tenant.personal_information.full_name}`,
+            action:'save'
+        })
 
         return res.status(201).json({
             success: true,
@@ -126,6 +135,7 @@ export const getTenantByUUID = async (req, res) => {
 export const updateTenantByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const tenant = await TenantModel.findOneAndUpdate(
             { uuid: uuid },
             req.body,
@@ -135,6 +145,13 @@ export const updateTenantByUUID = async (req, res) => {
         if (!tenant) {
             return res.status(404).json({ success: false, message: "Tenant not found" });
         }
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'update tenant info',
+            details:`${user.first_name} to update the tenant info in ${tenant._id}`,
+            action:'findOneAndUpdate'
+        })
 
         return res.status(200).json({
             success: true,
@@ -150,11 +167,19 @@ export const updateTenantByUUID = async (req, res) => {
 export const deleteTenantByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const tenant = await TenantModel.findOneAndUpdate(
             { uuid: uuid },
             { is_deleted: true },
             { new: true }
         );
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'soft detele tenant info',
+            details:`${user.first_name} to deleted the tenant info in id ${tenant._id}`,
+            action:'findOneAndUpdate'
+        })
 
         if (!tenant) {
             return res.status(404).json({ success: false, message: "Tenant not found" });
