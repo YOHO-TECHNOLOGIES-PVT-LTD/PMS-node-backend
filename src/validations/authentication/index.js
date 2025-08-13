@@ -15,6 +15,13 @@ const authSchema = Joi.object({
         "any.required": `"last_name" is a required field`,
     }),
 
+    phone_number:Joi.string().min(10).required().messages({
+        "string.base": `"phone_number" should be a type of "string"`,
+        "string.empty": `"phone_number" cannot be an empty field`,
+        "string.min": `"phone_number" should have a minimum length of {#limit}`,
+        "any.required": `"phone_number" is a required field`,
+    }),
+
     email: Joi.string().email().required().messages({
         "string.base": `"email" should be a type of "string"`,
         "string.empty": `"email" cannot be an empty field`,
@@ -27,6 +34,14 @@ const authSchema = Joi.object({
         "string.empty": `"password" cannot be an empty field`,
         "any.required": `"password" is a required field`,
     }),
+
+    address:Joi.string().required().messages({
+        "string.base": `"address" should be a type of "string"`,
+        "string.empty": `"address" cannot be an empty field`,
+        "any.required": `"address" is a required field`,
+    }),
+
+    image:Joi.string().optional(),
 
     role: Joi.string().required().messages({
         "string.base": `"role" should be a type of "string"`,

@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    phoone_number:{
+    phone_number:{
         type:String,
         required:true,
     },
@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema({
     password:{
         type:String,
         required:true,
+    },
+    image:{
+        type:String,
     },
     role:{
         type:String,
