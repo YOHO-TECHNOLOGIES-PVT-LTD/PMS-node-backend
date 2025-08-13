@@ -4,10 +4,11 @@ import { createProperty, deletePropertyByUUID, getAllProperties, getPropertyByUU
 const PropertyRouter = express.Router();
 
 PropertyRouter.post("/create", createProperty);
+PropertyRouter.get("/get_property", getPropertyType)
 PropertyRouter.get("/", getAllProperties);
 PropertyRouter.get("/:uuid", getPropertyByUUID);
 PropertyRouter.put("/:uuid", updatePropertyByUUID);
 PropertyRouter.delete("/:uuid", deletePropertyByUUID);
-PropertyRouter.get("/get", getPropertyType)
+
 
 export default PropertyRouter;
