@@ -1,3 +1,4 @@
+import { ActivityLogModel } from "../../models/activity_log/index.js";
 import { PropertyModel } from "../../models/Properties/index.js";
 import { UnitsModel } from "../../models/Units/index.js";
 
@@ -15,6 +16,7 @@ const validateUnitData = (data) => {
 export const createUnit = async (req, res) => {
     try {
         const errors = validateUnitData(req.body);
+        const user = req.user
         if (errors.length > 0) {
             return res.status(400).json({ success: false, errors });
         }
@@ -26,6 +28,13 @@ export const createUnit = async (req, res) => {
 
         const unit = new UnitsModel(req.body);
         await unit.save();
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'create new unit',
+            details:`${user.full_name} to create new units`,
+            action:'save'
+        })
 
         return res.status(201).json({
             success: true,
@@ -88,6 +97,7 @@ export const getUnitByUUID = async (req, res) => {
 export const updateUnitByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const unit = await UnitsModel.findOneAndUpdate(
             { uuid: uuid },
             req.body,
@@ -97,6 +107,13 @@ export const updateUnitByUUID = async (req, res) => {
         if (!unit) {
             return res.status(404).json({ success: false, message: "Unit not found" });
         }
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'update unit info',
+            details:`${user.full_name} to update the unit info by id ${unit._id}`,
+            action:'findOneAndUpdate'
+        })
 
         return res.status(200).json({
             success: true,
@@ -112,6 +129,7 @@ export const updateUnitByUUID = async (req, res) => {
 export const deleteUnitByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const unit = await UnitsModel.findOneAndUpdate(
             { uuid: uuid },
             { is_deleted: true },
@@ -121,6 +139,13 @@ export const deleteUnitByUUID = async (req, res) => {
         if (!unit) {
             return res.status(404).json({ success: false, message: "Unit not found" });
         }
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'soft delete for unit',
+            details:`${user.full_name} to deleted the unit id ${unit._id}`,
+            action:'findOneAndUpdate'
+        })
 
         return res.status(200).json({ success: true, message: "Unit deleted successfully" });
     } catch (error) {

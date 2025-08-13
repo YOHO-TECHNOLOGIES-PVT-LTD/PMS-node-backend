@@ -1,3 +1,4 @@
+import { ActivityLogModel } from "../../models/activity_log/index.js";
 import { PropertyModel } from "../../models/Properties/index.js";
 
 const validatePropertyData = (data) => {
@@ -36,12 +37,20 @@ const validatePropertyData = (data) => {
 export const createProperty = async (req, res) => {
     try {
         const errors = validatePropertyData(req.body);
+        const user = req.user
         if (errors.length > 0) {
             return res.status(400).json({ success: false, errors });
         }
 
         const property = new PropertyModel(req.body);
         await property.save();
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'added new property',
+            details:`${user.full_name} to added new property`,
+            action:'save'
+        })
 
         return res.status(201).json({
             success: true,
@@ -166,6 +175,7 @@ export const getPropertyByUUID = async (req, res) => {
 export const updatePropertyByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const property = await PropertyModel.findOneAndUpdate(
             { uuid: uuid },
             req.body,
@@ -175,6 +185,13 @@ export const updatePropertyByUUID = async (req, res) => {
         if (!property) {
             return res.status(404).json({ success: false, message: "Property not found" });
         }
+
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'update property info',
+            details:`${user.full_name} to updated the property id ${property._id}`,
+            action:'findOneAndUpdate'
+        })
 
         return res.status(200).json({
             success: true,
@@ -190,6 +207,7 @@ export const updatePropertyByUUID = async (req, res) => {
 export const deletePropertyByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
+        const user = req.user
         const property = await PropertyModel.findOneAndUpdate(
             { uuid: uuid },
             { is_deleted: true },
@@ -199,7 +217,12 @@ export const deletePropertyByUUID = async (req, res) => {
         if (!property) {
             return res.status(404).json({ success: false, message: "Property not found" });
         }
-
+        await ActivityLogModel.create({
+            userId:user._id,
+            title:'soft delete property',
+            details:`${user.full_name} to deleted the property id ${property._id}`,
+            action:'findOneAndUpdate'
+        })
         return res.status(200).json({ success: true, message: "Property deleted successfully" });
     } catch (error) {
         console.error("Delete Property Error:", error);

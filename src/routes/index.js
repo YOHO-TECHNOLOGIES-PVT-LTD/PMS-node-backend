@@ -8,6 +8,7 @@ import LeaseRouter from "./Lease/index.js"
 import maintenanceRoute from "./maintenance/index.js"
 import LandRouter from "./Land/index.js"
 import DashBoardRouter from "./Dashboard/index.js"
+import activityRoute from "./activity_log/index.js"
 
 const routes = express.Router()
 
@@ -20,5 +21,6 @@ routes.use('/lease', LeaseRouter)
 routes.use('/maintenance',maintenanceRoute)
 routes.use('/land', LandRouter)
 routes.use("/dashboard", DashBoardRouter)
+routes.use('/activity',activityRoute)
 
 export default routes
