@@ -112,7 +112,7 @@ export const dashBoardReports = async (req, res) => {
             { $match: { status: "paid" } },
             {
                 $group: {
-                    _id: { year: { $year: "$due_date" }, month: { $month: "$due_date" } },
+                    _id: { year: { $year: "$paymentDueDay" }, month: { $month: "$paymentDueDay" } },
                     total: { $sum: "$amount" }
                 }
             },
@@ -124,7 +124,7 @@ export const dashBoardReports = async (req, res) => {
             { $match: { status: "paid" } },
             {
                 $group: {
-                    _id: { year: { $year: "$due_date" } },
+                    _id: { year: { $year: "$paymentDueDay" } },
                     total: { $sum: "$amount" }
                 }
             },
