@@ -6,10 +6,6 @@ const LeaseSchema = new Schema({
         type: String,
         default: uuid
     },
-    propertyId: {
-        type: mongoose.Types.ObjectId,
-        required: true
-    },
     tenantId: {
         type: mongoose.Types.ObjectId,
         required: true
@@ -18,6 +14,10 @@ const LeaseSchema = new Schema({
         type: String,
         enum: ["active", "expired"],
         default: "active"
+    },
+    expiryDate: {
+        type: String,
+        required: true
     },
     is_active: {
         type: Boolean,

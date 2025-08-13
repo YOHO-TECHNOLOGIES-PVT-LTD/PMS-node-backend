@@ -189,7 +189,7 @@ export const dashBoardReports = async (req, res) => {
         const rentCollectionGraph = await RentsModel.aggregate([
             {
                 $group: {
-                    _id: { year: { $year: "$due_date" }, month: { $month: "$due_date" } },
+                    _id: { year: { $year: "$paymentDueDay" }, month: { $month: "$paymentDueDay" } },
                     totalExpected: { $sum: "$amount" },
                     collected: {
                         $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amount", 0] }
@@ -199,7 +199,11 @@ export const dashBoardReports = async (req, res) => {
             {
                 $addFields: {
                     collectionRate: {
-                        $multiply: [{ $divide: ["$collected", "$totalExpected"] }, 100]
+                        $cond: {
+                            if: { $eq: ["$totalExpected", 0] },
+                            then: 0,
+                            else: { $multiply: [{ $divide: ["$collected", "$totalExpected"] }, 100] }
+                        }
                     }
                 }
             }

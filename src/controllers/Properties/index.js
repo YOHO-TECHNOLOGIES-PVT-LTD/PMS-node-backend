@@ -1,4 +1,5 @@
 import { PropertyModel } from "../../models/Properties/index.js";
+import { UnitsModel } from "../../models/Units/index.js";
 
 const validatePropertyData = (data) => {
     const errors = [];
@@ -118,7 +119,7 @@ export const getAllProperties = async (req, res) => {
                                             100
                                         ]
                                     },
-                                    2 
+                                    2
                                 ]
                             }
                         ]
@@ -128,7 +129,7 @@ export const getAllProperties = async (req, res) => {
             {
                 $project: {
                     units: 0,
-                    tenants:0
+                    tenants: 0
                 }
             }
 
@@ -149,19 +150,42 @@ export const getAllProperties = async (req, res) => {
 
 export const getPropertyByUUID = async (req, res) => {
     try {
-        const { uuid } = req.params
-        const property = await PropertyModel.findOne({ uuid: uuid });
+        const { uuid } = req.params;
+        const property = await PropertyModel.findOne({ uuid });
 
         if (!property || property.is_deleted) {
             return res.status(404).json({ success: false, message: "Property not found" });
         }
 
-        return res.status(200).json({ success: true, data: property });
+        const units = await UnitsModel.find({ propertyId: property._id, is_deleted: false });
+
+        return res.status(200).json({
+            success: true,
+            data: units
+        });
+    } catch (error) {
+        console.error("Get unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+}
+
+export const getPropertyType = async (req, res) => {
+    try {
+        const { property_type } = req.body
+        const typeProperty = await PropertyModel.find({ property_type: property_type })
+        if (!typeProperty) {
+            res.status(400).json({ message: "Property type not found" })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Properties Retrieved Succesfully",
+            data: typeProperty
+        })
     } catch (error) {
         console.error("Get Property Error:", error);
         return res.status(500).json({ success: false, message: error.message });
     }
-};
+}
 
 export const updatePropertyByUUID = async (req, res) => {
     try {

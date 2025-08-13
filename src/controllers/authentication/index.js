@@ -58,7 +58,12 @@ export const LoginUser=async (req,res) => {
 
 export const GetUserDetails= async(req,res)=>{
     try {
-        res.status(200).json({success:true,message:'profile data fetched',data:req?.user})
+        console.log(req.user, "user")
+        const profile = await UserModel.findById({_id: req.user._id})
+        if(!profile){
+           return res.status(400).json({message: "Profile not found"})
+        }
+        res.status(200).json({success:true,message:'profile data fetched',data:profile})
     } catch (error) {
         res.status(500).json({success:false,message:error.message})
     }
