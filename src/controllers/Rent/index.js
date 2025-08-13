@@ -7,7 +7,7 @@ import ExcelJS from "exceljs";
 import { TenantModel } from "../../models/Tenants/index.js";
 import { NotifyModel } from "../../models/Notification/index.js";
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("5 0 1 * *", async () => {
     console.log("Starting monthly rent creation...");
 
     try {
