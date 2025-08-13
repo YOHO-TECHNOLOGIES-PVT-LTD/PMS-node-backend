@@ -32,7 +32,7 @@ export const createUnit = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'create new unit',
-            details:`${user.full_name} to create new units`,
+            details:`${user.first_name} to create new units`,
             action:'save'
         })
 
@@ -111,7 +111,7 @@ export const updateUnitByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'update unit info',
-            details:`${user.full_name} to update the unit info by id ${unit._id}`,
+            details:`${user.first_name} to update the unit info by id ${unit._id}`,
             action:'findOneAndUpdate'
         })
 
@@ -143,7 +143,7 @@ export const deleteUnitByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'soft delete for unit',
-            details:`${user.full_name} to deleted the unit id ${unit._id}`,
+            details:`${user.first_name} to deleted the unit id ${unit._id}`,
             action:'findOneAndUpdate'
         })
 

@@ -1,11 +1,18 @@
 import Joi from "joi";
 
 const authSchema = Joi.object({
-    full_name: Joi.string().min(6).required().messages({
-        "string.base": `"full_name" should be a type of "string"`,
-        "string.empty": `"full_name" cannot be an empty field`,
-        "string.min": `"full_name" should have a minimum length of {#limit}`,
-        "any.required": `"full_name" is a required field`,
+    first_name: Joi.string().min(6).required().messages({
+        "string.base": `"first_name" should be a type of "string"`,
+        "string.empty": `"first_name" cannot be an empty field`,
+        "string.min": `"first_name" should have a minimum length of {#limit}`,
+        "any.required": `"first_name" is a required field`,
+    }),
+
+    last_name: Joi.string().min(1).required().messages({
+        "string.base": `"last_name" should be a type of "string"`,
+        "string.empty": `"last_name" cannot be an empty field`,
+        "string.min": `"last_name" should have a minimum length of {#limit}`,
+        "any.required": `"last_name" is a required field`,
     }),
 
     email: Joi.string().email().required().messages({

@@ -44,7 +44,7 @@ export const createTenant = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'create new tenant',
-            details:`${user.full_name} to created new tenant are ${tenant.personal_information.full_name}`,
+            details:`${user.first_name} to created new tenant are ${tenant.personal_information.full_name}`,
             action:'save'
         })
 
@@ -148,7 +148,7 @@ export const updateTenantByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'update tenant info',
-            details:`${user.full_name} to update the tenant info in ${tenant._id}`,
+            details:`${user.first_name} to update the tenant info in ${tenant._id}`,
             action:'findOneAndUpdate'
         })
 
@@ -176,7 +176,7 @@ export const deleteTenantByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'soft detele tenant info',
-            details:`${user.full_name} to deleted the tenant info in id ${tenant._id}`,
+            details:`${user.first_name} to deleted the tenant info in id ${tenant._id}`,
             action:'findOneAndUpdate'
         })
 

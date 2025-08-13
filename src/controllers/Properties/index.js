@@ -48,7 +48,7 @@ export const createProperty = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'added new property',
-            details:`${user.full_name} to added new property`,
+            details:`${user.first_name} to added new property`,
             action:'save'
         })
 
@@ -189,7 +189,7 @@ export const updatePropertyByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'update property info',
-            details:`${user.full_name} to updated the property id ${property._id}`,
+            details:`${user.first_name} to updated the property id ${property._id}`,
             action:'findOneAndUpdate'
         })
 
@@ -220,7 +220,7 @@ export const deletePropertyByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'soft delete property',
-            details:`${user.full_name} to deleted the property id ${property._id}`,
+            details:`${user.first_name} to deleted the property id ${property._id}`,
             action:'findOneAndUpdate'
         })
         return res.status(200).json({ success: true, message: "Property deleted successfully" });

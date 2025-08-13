@@ -31,7 +31,7 @@ const maintainSchema = Joi.object({
    description:Joi.string().min(6).required().messages({
         "string.base":`"description" should be a type of string`,
         "any.required":`"description" is required field`,
-        "string.min": `"full_name" should have a minimum length of {#limit}`,
+        "string.min": `"description" should have a minimum length of {#limit}`,
    }),
    estmate_cost:Joi.number().required().messages({
         "number.base":`"estmate_cost" should be a type of Number`,

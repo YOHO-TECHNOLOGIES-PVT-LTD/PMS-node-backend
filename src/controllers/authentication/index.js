@@ -6,7 +6,7 @@ import { sessionModel } from "../../models/authentication/common.js"
 
 export const RegisterUser=async (req,res) => {
     try {
-        const {email,full_name,password,role} = validation.authRegiter(req.body)
+        const {email,first_name,password,role,last_name} = validation.authRegiter(req.body)
 
         const user = await UserModel.findOne({email})
         if (user) {
@@ -19,8 +19,9 @@ export const RegisterUser=async (req,res) => {
             uuid: await GetUUID(),
             email,
             password:hashpass,
-            full_name,
+            first_name,
             role,
+            last_name
         })
 
         await newuser.save()

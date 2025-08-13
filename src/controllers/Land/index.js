@@ -49,7 +49,7 @@ export const createLand = async (req, res) => {
         await ActivityLogModel.create({
             userId: user?._id,
             title:`new land added`,
-            details:`${user?.full_name} to added new land details.`,
+            details:`${user?.first_name} to added new land details.`,
             action:'save'
         })
 
