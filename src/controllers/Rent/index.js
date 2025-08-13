@@ -30,8 +30,10 @@ cron.schedule("5 0 1 * *", async () => {
             });
 
             await NotifyModel.create({
-                title: `Rent Payment Overdue`,
-                description: `${tenant.personal_information.full_name} ${tenant.unit.name} has rent due ${Rent.paymentDueDay} (${tenant.rent})`
+                title: `Rent Payment Overdue ${tenant.unit.propertyId.property_name}`,
+                description: `${tenant.personal_information.full_name} ${tenant.unit.name} has rent due ${Rent.paymentDueDay} (${tenant.rent})`,
+                notify_type: 'rent',
+                created_at: Date.now()
             })
 
             console.log(`Rent created for tenant ${tenant.personal_information.full_name}`);

@@ -1,6 +1,7 @@
 import cron from "node-cron"
 import { LeaseModel } from "../../models/Lease/index.js";
 import { TenantModel } from "../../models/Tenants/index.js";
+import { NotifyModel } from "../../models/Notification/index.js";
 
 cron.schedule("0 0 * * *", async () => {
     console.log("Checking for leases expiring within the next 30 days...");
@@ -25,13 +26,19 @@ cron.schedule("0 0 * * *", async () => {
             });
 
             if (!alreadyExists) {
-                await LeaseModel.create({
+                const leases = await LeaseModel.create({
                     tenantId: lease.tenantId?._id,
                     unitId: lease.tenantId?.unit?._id,
                     propertyId: lease.tenantId?.unit?.propertyId?._id,
                     expiryDate: lease.lease_information?.end_date,
                     status: "paid"
                 });
+                await NotifyModel.create({
+                    title: `Lease Expiring Soon`,
+                    description: `${lease.tenantId.personal_information.full_name} lease for ${lease.tenantId.unit.name} at ${lease.tenantId.unit.propertyId.property_name} will expire in ${leases.expiryDate}`,
+                    notify_type: 'rent',
+                    created_at: Date.now()
+                })
 
                 console.log(`Lease expiry record created for tenant: ${lease.tenantId?.personal_information?.full_name}`);
             }
