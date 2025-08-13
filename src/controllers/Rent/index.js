@@ -5,6 +5,7 @@ import fs from "fs";
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import { TenantModel } from "../../models/Tenants/index.js";
+import { NotifyModel } from "../../models/Notification/index.js";
 
 cron.schedule("5 0 1 * *", async () => {
     console.log("Starting monthly rent creation...");
@@ -14,19 +15,24 @@ cron.schedule("5 0 1 * *", async () => {
             tenant_type: "rent",
             is_active: true,
             is_deleted: false
-        }).populate({ path: "unit", model: "unit" });
+        }).populate({ path: "unit", model: "unit", populate:{path: "propertyId" , model: "property"} });
 
         for (const tenant of tenants) {
             const unitDetails = await UnitsModel.findById(tenant.unit);
 
             if (!unitDetails) continue;
 
-            await RentsModel.create({
-                propertyId: tenant.property_name,
+            const Rent = await RentsModel.create({
+                propertyId: tenant.unit.propertyId.property_name,
                 tenantId: tenant._id,
                 paymentDueDay: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
                 status: "pending"
             });
+
+            await NotifyModel.create({
+                title: `Rent Payment Overdue`,
+                description: `${tenant.personal_information.full_name} ${tenant.unit.name} has rent due ${Rent.paymentDueDay} (${tenant.rent})`
+            })
 
             console.log(`Rent created for tenant ${tenant.personal_information.full_name}`);
         }
@@ -50,7 +56,7 @@ export const getRents = async (req, res) => {
 
         const rents = await RentsModel.find({
             createdAt: { $gte: startDate, $lte: endDate }
-        }).populate("propertyId tenantId");
+        }).populate({path: "tenantId", model: "tenant" , populate: {path: "unit", model: "unit"}});
 
         const TotalDue = await TenantModel.aggregate([
             {
@@ -127,7 +133,7 @@ export const markRentPaidByUUID = async (req, res) => {
 
         if (!rent) return res.status(404).json({ message: "Rent not found" });
 
-        res.json({ message: "Rent marked as paid", rent });
+        res.status(200).json({ message: "Rent marked as paid", rent });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
