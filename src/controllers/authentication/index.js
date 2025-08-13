@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs"
 import { UserModel } from "../../models/authentication/index.js"
 import { GetUUID, JWTEncoded } from "../../utils/authhelper.js"
 import { validation } from "../../validations/index.js"
+import { sessionModel } from "../../models/authentication/common.js"
 
 export const RegisterUser=async (req,res) => {
     try {
@@ -45,7 +46,8 @@ export const LoginUser=async (req,res) => {
         const valid = bcrypt.compareSync(password,user?.password)
         
         if (valid) {
-            const {token} =await JWTEncoded(user)
+            const {token,iv} =await JWTEncoded(user)
+            // await sessionModel.create({token,iv,userId:user._id})
             res.status(200).json({success:true,message:"login success",data:{token,role:user.role},otpVerify:false})
         }else{
             res.status(400).json({success:false,message:"password doesn't match"})

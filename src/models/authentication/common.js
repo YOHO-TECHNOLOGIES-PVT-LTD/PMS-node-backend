@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { GetUUID } from "../../utils/authhelper";
 
 const sessionSchema = new mongoose.Schema({
     uuid:{
@@ -16,9 +17,23 @@ const sessionSchema = new mongoose.Schema({
     },
     endDate:{
         type:Date,
+        default:Date.now() + 1
     }
 },{
     timestamps:true
 })
 
-const RoleSchema = mongoose.Schema({})
+sessionSchema.pre('save',async function(next){
+    try {
+        if (!this.uuid) {
+            this.uuid = await GetUUID()
+            next()
+        }else{
+            next()
+        }
+    } catch (error) {
+        throw error
+    }
+})
+
+export const sessionModel = mongoose.model("sessionModel",sessionSchema)

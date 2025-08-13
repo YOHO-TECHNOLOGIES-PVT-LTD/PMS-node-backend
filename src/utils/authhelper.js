@@ -33,6 +33,7 @@ export const JWTEncoded = async(data)=>{
         encrypt+=cipher.final('hex')
     
         return {
+            iv,
             token:encrypt
         }
 
