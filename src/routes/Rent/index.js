@@ -5,7 +5,7 @@ const RentRouter = express.Router();
 
 RentRouter.get("/", getRents);
 RentRouter.put("/:uuid", markRentPaidByUUID)
-RentRouter.post("/download/pdf/:uuid", downloadRentPDF)
+RentRouter.get("/download/pdf/:uuid", downloadRentPDF)
 RentRouter.post("/download/excel/:uuid", downloadMonthlyExcel)
 
 export default RentRouter;
