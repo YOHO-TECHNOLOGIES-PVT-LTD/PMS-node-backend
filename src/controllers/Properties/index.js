@@ -171,7 +171,7 @@ export const getPropertyByUUID = async (req, res) => {
 
 export const getPropertyType = async (req, res) => {
     try {
-        const property_type  = req.body
+        const {property_type}  = req.query
         const typeProperty = await PropertyModel.find({ property_type: property_type })
         if (!typeProperty) {
             res.status(400).json({ message: "Property type not found" })
