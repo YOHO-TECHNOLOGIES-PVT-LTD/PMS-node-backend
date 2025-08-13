@@ -60,7 +60,7 @@ export const LoginUser=async (req,res) => {
 
 export const GetUserDetails= async(req,res)=>{
     try {
-        res.status(200).json({success:true,message:'profile data fetched',data:req?.user})
+        res.status(200).json({success:true,message:'profile data fetched',data:req.user})
     } catch (error) {
         res.status(500).json({success:false,message:error.message})
     }

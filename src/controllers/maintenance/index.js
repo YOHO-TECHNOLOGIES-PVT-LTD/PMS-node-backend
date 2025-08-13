@@ -7,7 +7,7 @@ export const CreateMaintenance=async(req,res)=>{
     try {
         const value = validation.maintenance(req.body)
         console.log(value)
-        const user = req.user
+        // const user = req.user
         const data = new maintenance({
             uuid: await GetUUID(),
             ...value
@@ -15,12 +15,12 @@ export const CreateMaintenance=async(req,res)=>{
 
         await data.save()
 
-        await ActivityLogModel.create({
-            userId:user._id,
-            title:'create new maintenance',
-            details:`${user.full_name} to created new maintenance request`,
-            action:'save'
-        })
+        // await ActivityLogModel.create({
+        //     userId:user._id,
+        //     title:'create new maintenance',
+        //     details:`${user.full_name} to created new maintenance request`,
+        //     action:'save'
+        // })
 
         res.status(200).json({success:true,message:"new maintenance created",data})        
     } catch (error) {
