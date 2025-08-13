@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { GetUUID } from "../../utils/authhelper";
+import { GetUUID } from "../../utils/authhelper.js";
 
 const sessionSchema = new mongoose.Schema({
     uuid:{
