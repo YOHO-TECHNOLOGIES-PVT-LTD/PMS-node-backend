@@ -7,7 +7,7 @@ import ExcelJS from "exceljs";
 import { TenantModel } from "../../models/Tenants/index.js";
 import { NotifyModel } from "../../models/Notification/index.js";
 
-cron.schedule("5 0 1 * *", async () => {
+cron.schedule("* * * * *", async () => {
     console.log("Starting monthly rent creation...");
 
     try {
@@ -23,15 +23,16 @@ cron.schedule("5 0 1 * *", async () => {
             if (!unitDetails) continue;
 
             const Rent = await RentsModel.create({
-                propertyId: tenant.unit.propertyId.property_name,
                 tenantId: tenant._id,
                 paymentDueDay: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
                 status: "pending"
             });
 
+            const PaymentDueDay = Rent.paymentDueDay.toDateString()
+
             await NotifyModel.create({
-                title: `Rent Payment Overdue ${tenant.unit.propertyId.property_name}`,
-                description: `${tenant.personal_information.full_name} ${tenant.unit.name} has rent due ${Rent.paymentDueDay} (${tenant.rent})`,
+                title: `Rent Payment Overdue ${tenant?.unit?.propertyId?.property_name}`,
+                description: `${tenant.personal_information.full_name} ${tenant.unit.unit_name} has rent due ${PaymentDueDay} (${tenant.rent})`,
                 notify_type: 'rent',
                 created_at: Date.now()
             })

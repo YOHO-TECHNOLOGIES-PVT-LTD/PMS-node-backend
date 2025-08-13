@@ -108,8 +108,6 @@ export const getLeases = async (req, res) => {
         const expiringSoonThisMonth = leaseStats[0].expiringSoonThisMonth[0]?.count || 0
         const totalDepositAmount = leaseStats[0].totalDepositAmount[0]?.total || 0
 
-        console.log(result);
-
         res.status.json({
             success: true,
             message: "Leases retrieved successfully",
