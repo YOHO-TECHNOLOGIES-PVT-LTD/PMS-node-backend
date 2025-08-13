@@ -20,6 +20,10 @@ const maintainSchema = Joi.object({
         "string.base":`"scheduled" should be a date`,
         "any.required":`"scheduled" is required field`,
    }),
+   title:Joi.string().required().messages({
+        "string.base":`"title" should be a type of string`,
+        "any.required":`"title" is required field`,
+   }),
    status:Joi.string().optional(),
 });
 

@@ -14,8 +14,13 @@ const maintenanceSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    title:{
+        type:String,
+        required:true,
+    },
     category:{
         type:String,
+        required:true,
     },
     scheduled:{
         type:Date,
