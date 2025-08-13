@@ -44,7 +44,7 @@ export const getRents = async (req, res) => {
         if (!month || !year) {
             return res.status(400).json({ message: "Month and Year are required" });
         }
-        const now = new Date();
+
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
@@ -72,7 +72,7 @@ export const getRents = async (req, res) => {
         const stats = await RentsModel.aggregate([
             {
                 $match: {
-                    due_date: { $gte: startOfMonth, $lte: endOfMonth },
+                    paymentDueDay: { $gte: startDate, $lte: endDate },
                     status: { $in: ["paid", "pending"] }
                 }
             },
@@ -97,7 +97,7 @@ export const getRents = async (req, res) => {
         const totalPendingThisMonth = stats.find(s => s._id === "pending")?.totalAmount || 0;
 
 
-        res.status.json({
+        res.status(200).json({
             success: true,
             message: "Rents retrieved successfully",
             data: {
