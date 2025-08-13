@@ -6,6 +6,7 @@ import { validation } from "../../validations/index.js"
 export const CreateMaintenance=async(req,res)=>{
     try {
         const value = validation.maintenance(req.body)
+        console.log(value)
         const user = req.user
         const data = new maintenance({
             uuid: await GetUUID(),
@@ -33,6 +34,7 @@ export const GetAllMaintenance=async(req,res)=>{
         perpage =parseInt(perpage)
 
         const data =await maintenance.find()
+                    .populate([{path:"propertyId",select:"property_name uuid _id"},{path:"unitId",select:"unit_name _id uuid"}])
                     .skip((page-1)* perpage)
                     .limit(perpage)
                     .sort({createdAt:-1})
@@ -46,7 +48,7 @@ export const GetOneMaintenance=async(req,res)=>{
     try {
         const {uuid} = req.params
 
-        const data = await maintenance.findOne({uuid}).populate("propertyId")
+        const data = await maintenance.findOne({uuid}).populate(["propertyId","unitId"])
 
         res.status(200).json({success:true,message:'maintenance data feteched', data})
     } catch (error) {
