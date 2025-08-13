@@ -27,11 +27,32 @@ export const markedAsRead = async (req, res) => {
         const { uuid } = req.params;
         const updated = await NotifyModel.findOneAndUpdate(
             { uuid: uuid },
-            { is_read: true }
+            { is_read: true },
+            { new: true}
         );
         return res.status(200).json({
             success: true,
             message: "Updated notification marked as read"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+export const deleteNotify = async (req, res) => {
+    try {
+        const { uuid } = req.params;
+        const updated = await NotifyModel.findOneAndUpdate(
+            { uuid: uuid },
+            { is_deleted: true },
+            { new: true}
+        );
+        return res.status(200).json({
+            success: true,
+            message: "Notification deleted successfully"
         })
     } catch (error) {
         res.status(500).json({
