@@ -128,7 +128,7 @@ export const markRentPaidByUUID = async (req, res) => {
     try {
         const { uuid } = req.params;
         const { status } = req.body;
-        const rent = await RentsModel.findByIdAndUpdate(
+        const rent = await RentsModel.findOneAndUpdate(
             { uuid: uuid },
             { status: status, reminderShown: false },
             { new: true }
