@@ -4,7 +4,7 @@ import { AuthVerify } from "../../middelware/authverify.js";
 
 const UnitRouter = express.Router();
 
-UnitRouter.post("/create",AuthVerify(["owner"]), createUnit)
+UnitRouter.post("/create",AuthVerify(["owner", "admin"]), createUnit)
 UnitRouter.get("/", getAllUnits)
 UnitRouter.get("/:uuid", getUnitByUUID)
 UnitRouter.put("/:uuid",AuthVerify(["owner"]), updateUnitByUUID)

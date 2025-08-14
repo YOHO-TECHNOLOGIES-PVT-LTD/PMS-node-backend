@@ -58,7 +58,8 @@ export const getRents = async (req, res) => {
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
         const rents = await RentsModel.find({
-            createdAt: { $gte: startDate, $lte: endDate }
+            createdAt: { $gte: startDate, $lte: endDate },
+            is_deleted: false
         }).populate({path: "tenantId", model: "tenant" , populate: {path: "unit", model: "unit"}});
 
         const TotalDue = await TenantModel.aggregate([
@@ -216,3 +217,23 @@ export const downloadMonthlyExcel = async (req, res) => {
         res.status(500).json({ message: "Error generating Excel" });
     }
 };
+
+export const deleteRent  = async (req, res)=> {
+    try {
+        const {uuid} = req.params;
+        if(!uuid){
+            return res.status(400).json({message: "UUID is Required"})
+        }
+        const deletedRent = await RentsModel.findOneAndUpdate({uuid: uuid}, {is_deleted: true}, {new: true})
+        if(!deletedRent){
+            return res.status(400).json({message: "UUID is Required"})
+        }
+        return res.status(200).json({
+            success: true,
+            message: "Rent deleted is successfully",
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+}

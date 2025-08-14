@@ -12,10 +12,6 @@ const maintainSchema = Joi.object({
         "string.base":`"category" should be a type of string`,
         "any.required":`"category" is required field`,
    }),
-   propertyId:Joi.string().required().messages({
-        "string.base":`"propertyId" should be a objectId`,
-        "any.required":`"propertyId" is required field`
-   }),
    unitId:Joi.string().required().messages({
         "string.base":`"unitId" should be a objectId`,
         "any.required":`"unitId" is required field`
