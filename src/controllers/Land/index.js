@@ -9,9 +9,6 @@ const validateLandData = (data) => {
         errors.push("land name is required");
     }
 
-    if (!data.land_type) {
-        errors.push("Land type is required");
-    }
 
     if (!data.square_feet || data.square_feet.trim() === "") {
         errors.push("Square feet is required");
