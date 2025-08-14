@@ -30,10 +30,10 @@ export const createUnit = async (req, res) => {
         await unit.save();
 
         await ActivityLogModel.create({
-            userId:user._id,
-            title:'create new unit',
-            details:`${user.first_name} to create new units`,
-            action:'save'
+            userId: user._id,
+            title: 'create new unit',
+            details: `${user.first_name} to create new units`,
+            action: 'save'
         })
 
         return res.status(201).json({
@@ -46,6 +46,24 @@ export const createUnit = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const getUnitsPropertyId = async (req, res) => {
+    try {
+        const { propertyId } = req.params;
+        if (!propertyId) {
+            return res.status(400).json({ message: "Property not found" })
+        }
+        const getProperty = await UnitsModel.find({ propertyId: propertyId })
+        return res.status(201).json({
+            success: true,
+            message: "Unit get successfully",
+            data: getProperty
+        });
+    } catch (error) {
+        console.error("Get Unit Error:", error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+}
 
 export const getAllUnits = async (req, res) => {
     try {
@@ -60,7 +78,7 @@ export const getAllUnits = async (req, res) => {
         const total = await UnitsModel.countDocuments(filters);
 
         const units = await UnitsModel.find(filters)
-            .populate({path: "propertyId", model: "property"})
+            .populate({ path: "propertyId", model: "property" })
             .skip(skip)
             .limit(parseInt(limit))
             .sort({ createdAt: -1 })
@@ -81,7 +99,7 @@ export const getAllUnits = async (req, res) => {
 export const getUnitByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
-        const unit = await UnitsModel.findOne({ uuid: uuid }).populate({path: "propertyId", model: "property"});
+        const unit = await UnitsModel.findOne({ uuid: uuid }).populate({ path: "propertyId", model: "property" });
 
         if (!unit || unit.is_deleted) {
             return res.status(404).json({ success: false, message: "Unit not found" });
@@ -109,10 +127,10 @@ export const updateUnitByUUID = async (req, res) => {
         }
 
         await ActivityLogModel.create({
-            userId:user._id,
-            title:'update unit info',
-            details:`${user.first_name} to update the unit info by id ${unit._id}`,
-            action:'findOneAndUpdate'
+            userId: user._id,
+            title: 'update unit info',
+            details: `${user.first_name} to update the unit info by id ${unit._id}`,
+            action: 'findOneAndUpdate'
         })
 
         return res.status(200).json({
@@ -141,10 +159,10 @@ export const deleteUnitByUUID = async (req, res) => {
         }
 
         await ActivityLogModel.create({
-            userId:user._id,
-            title:'soft delete for unit',
-            details:`${user.first_name} to deleted the unit id ${unit._id}`,
-            action:'findOneAndUpdate'
+            userId: user._id,
+            title: 'soft delete for unit',
+            details: `${user.first_name} to deleted the unit id ${unit._id}`,
+            action: 'findOneAndUpdate'
         })
 
         return res.status(200).json({ success: true, message: "Unit deleted successfully" });
