@@ -200,9 +200,9 @@ export const dashBoardReports = async (req, res) => {
             }
         ]);
 
-        const rentdata = await RentsModel.find().populate({path:"tenantId",select:"rent _id"})
+        const rentdata = await RentsModel.find().populate({ path: "tenantId", select: "rent _id" })
         const maintain = await maintenance.find()
-        const rentCollectionGraph = generateReport(rentdata,maintain)
+        const rentCollectionGraph = generateReport(rentdata, maintain)
 
 
         // const rentCollectionGraph = await RentsModel.aggregate([
@@ -257,117 +257,75 @@ export const dashBoardReports = async (req, res) => {
 };
 
 
-function generateReport(data,expence){
+function generateReport(data, expence) {
     try {
-        const monthly={
-            jan:{exp:0,rev:0},
-            feb:{exp:0,rev:0},
-            mar:{exp:0,rev:0},
-            apr:{exp:0,rev:0},
-            may:{exp:0,rev:0},
-            jun:{exp:0,rev:0},
-            jul:{exp:0,rev:0},
-            aug:{exp:0,rev:0},
-            sep:{exp:0,rev:0},
-            oct:{exp:0,rev:0},
-            nov:{exp:0,rev:0},
-            dec:{exp:0,rev:0},
-        }
+        const monthly = {
+            jan: { exp: 0, rev: 0 },
+            feb: { exp: 0, rev: 0 },
+            mar: { exp: 0, rev: 0 },
+            apr: { exp: 0, rev: 0 },
+            may: { exp: 0, rev: 0 },
+            jun: { exp: 0, rev: 0 },
+            jul: { exp: 0, rev: 0 },
+            aug: { exp: 0, rev: 0 },
+            sep: { exp: 0, rev: 0 },
+            oct: { exp: 0, rev: 0 },
+            nov: { exp: 0, rev: 0 },
+            dec: { exp: 0, rev: 0 },
+        };
 
-        data.forEach((list)=>{
-            const month = new Date(list?.createdAt).getMonth()
+        const yearly = { exp: 0, rev: 0 }; // <-- new yearly totals
 
-            switch(month){
-                case 0:
-                    monthly.jan.rev += list?.tenantId?.rent
-                    break;
-                case 1:
-                    monthly.feb.rev += list?.tenantId?.rent
-                    break;
-                case 2:
-                    monthly.mar.rev += list?.tenantId?.rent
-                    break;
-                case 3:
-                    monthly.apr.rev += list?.tenantId?.rent
-                    break;
-                case 4:
-                    monthly.may.rev += list?.tenantId?.rent
-                    break;
-                case 5:
-                    monthly.jun.rev += list?.tenantId?.rent
-                    break;
-                case 6:
-                    monthly.jul.rev += list?.tenantId?.rent
-                    break;
-                case 7:
-                    monthly.aug.rev += list?.tenantId?.rent
-                    break;
-                case 8:
-                    monthly.sep.rev += list?.tenantId?.rent
-                    break;
-                case 9:
-                    monthly.oct.rev += list?.tenantId?.rent
-                    break;
-                case 10:
-                    monthly.nov.rev += list?.tenantId?.rent
-                    break;
-                case 11:
-                    monthly.dec.rev += list?.tenantId?.rent
-                    break;
-                default:
-                    throw new Error("month not correct")
+        // Revenue loop
+        data.forEach((list) => {
+            const month = new Date(list?.createdAt).getMonth();
+            const rent = list?.tenantId?.rent || 0;
+
+            yearly.rev += rent; // add to yearly revenue
+
+            switch (month) {
+                case 0: monthly.jan.rev += rent; break;
+                case 1: monthly.feb.rev += rent; break;
+                case 2: monthly.mar.rev += rent; break;
+                case 3: monthly.apr.rev += rent; break;
+                case 4: monthly.may.rev += rent; break;
+                case 5: monthly.jun.rev += rent; break;
+                case 6: monthly.jul.rev += rent; break;
+                case 7: monthly.aug.rev += rent; break;
+                case 8: monthly.sep.rev += rent; break;
+                case 9: monthly.oct.rev += rent; break;
+                case 10: monthly.nov.rev += rent; break;
+                case 11: monthly.dec.rev += rent; break;
+                default: throw new Error("Month not correct");
             }
-        })
+        });
 
+        // Expense loop
+        expence.forEach((list) => {
+            const month = new Date(list?.createdAt).getMonth();
+            const cost = list?.estmate_cost || 0;
 
-        expence.forEach((list)=>{
-            const month = new Date(list?.createdAt).getMonth()
+            yearly.exp += cost; // add to yearly expense
 
-            switch(month){
-                case 0:
-                    monthly.jan.exp += list?.estmate_cost
-                    break;
-                case 1:
-                    monthly.feb.exp += list?.estmate_cost
-                    break;
-                case 2:
-                    monthly.mar.exp += list?.estmate_cost
-                    break;
-                case 3:
-                    monthly.apr.exp += list?.estmate_cost
-                    break;
-                case 4:
-                    monthly.may.exp += list?.estmate_cost
-                    break;
-                case 5:
-                    monthly.jun.exp += list?.estmate_cost
-                    break;
-                case 6:
-                    monthly.jul.exp += list?.estmate_cost
-                    break;
-                case 7:
-                    monthly.aug.exp += list?.estmate_cost
-                    break;
-                case 8:
-                    monthly.sep.exp += list?.estmate_cost
-                    break;
-                case 9:
-                    monthly.oct.exp += list?.estmate_cost
-                    break;
-                case 10:
-                    monthly.nov.exp += list?.estmate_cost
-                    break;
-                case 11:
-                    monthly.dec.exp += list?.estmate_cost
-                    break;
-                default:
-                    throw new Error("month not correct")
+            switch (month) {
+                case 0: monthly.jan.exp += cost; break;
+                case 1: monthly.feb.exp += cost; break;
+                case 2: monthly.mar.exp += cost; break;
+                case 3: monthly.apr.exp += cost; break;
+                case 4: monthly.may.exp += cost; break;
+                case 5: monthly.jun.exp += cost; break;
+                case 6: monthly.jul.exp += cost; break;
+                case 7: monthly.aug.exp += cost; break;
+                case 8: monthly.sep.exp += cost; break;
+                case 9: monthly.oct.exp += cost; break;
+                case 10: monthly.nov.exp += cost; break;
+                case 11: monthly.dec.exp += cost; break;
+                default: throw new Error("Month not correct");
             }
-        })
+        });
 
-        return monthly
-
+        return { monthly, yearly }; // return both
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 }

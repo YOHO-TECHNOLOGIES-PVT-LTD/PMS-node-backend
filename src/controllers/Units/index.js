@@ -49,11 +49,11 @@ export const createUnit = async (req, res) => {
 
 export const getUnitsPropertyId = async (req, res) => {
     try {
-        const { propertyId } = req.params;
-        if (!propertyId) {
+        const { id } = req.params;
+        if (!id) {
             return res.status(400).json({ message: "Property not found" })
         }
-        const getProperty = await UnitsModel.find({ propertyId: propertyId })
+        const getProperty = await UnitsModel.find({ propertyId: id })
         return res.status(201).json({
             success: true,
             message: "Unit get successfully",

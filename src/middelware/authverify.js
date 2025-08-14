@@ -11,6 +11,7 @@ export const AuthVerify=(resource=[])=>async(req,res,next)=>{
         }
 
         const decoded = await JWTDecoded(token)
+        console.log("decoded", decoded)
 
         console.log(decoded,"token come in verify")
 
