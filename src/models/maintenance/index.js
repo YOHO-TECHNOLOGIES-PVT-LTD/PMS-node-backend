@@ -5,11 +5,6 @@ const maintenanceSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    propertyId:{
-        type:mongoose.Types.ObjectId,
-        ref:"property",
-        required:true,
-    },
     unitId:{
         type:mongoose.Types.ObjectId,
         ref:"unit",

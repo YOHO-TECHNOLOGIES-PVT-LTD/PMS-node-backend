@@ -7,6 +7,8 @@ export const CreateMaintenance=async(req,res)=>{
     try {
         const value = validation.maintenance(req.body)
         const user = req.user
+        console.log("user", req.user)
+        console.log("value", value)
         const data = new maintenance({
             uuid: await GetUUID(),
             ...value
@@ -33,7 +35,7 @@ export const GetAllMaintenance=async(req,res)=>{
         perpage =parseInt(perpage)
 
         const data =await maintenance.find()
-                    .populate([{path:"propertyId",select:"property_name uuid _id"},{path:"unitId",select:"unit_name _id uuid"}])
+                    .populate({path:"unitId",model: "unit", select:"unit_name _id uuid"})
                     .skip((page-1)* perpage)
                     .limit(perpage)
                     .sort({createdAt:-1})

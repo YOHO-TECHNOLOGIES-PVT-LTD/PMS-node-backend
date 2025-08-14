@@ -3,7 +3,7 @@ import { CreateMaintenance, DeleteMaintenance, GetAllMaintenance, GetOneMaintena
 import { AuthVerify } from '../../middelware/authverify.js'
 const maintenanceRoute = express.Router()
 
-maintenanceRoute.post('/create',CreateMaintenance)
+maintenanceRoute.post('/create', AuthVerify(["owner", "admin"]), CreateMaintenance)
 maintenanceRoute.get('/getall',GetAllMaintenance)
 maintenanceRoute.get('/get/:uuid',GetOneMaintenance)
 maintenanceRoute.put('/update/:uuid',AuthVerify(["owner"]),UpdateMaintenance)
