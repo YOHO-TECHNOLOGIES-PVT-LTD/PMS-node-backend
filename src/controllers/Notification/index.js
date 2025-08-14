@@ -26,7 +26,7 @@ export const markedAsRead = async (req, res) => {
     try {
         const { uuid } = req.params;
         const updated = await NotifyModel.findOneAndUpdate(
-            { uuid: uuid },
+            { _id: uuid },
             { is_read: true },
             { new: true}
         );
@@ -46,7 +46,7 @@ export const deleteNotify = async (req, res) => {
     try {
         const { uuid } = req.params;
         const updated = await NotifyModel.findOneAndUpdate(
-            { uuid: uuid },
+            { _id: uuid },
             { is_deleted: true },
             { new: true}
         );
