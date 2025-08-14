@@ -58,7 +58,8 @@ export const getRents = async (req, res) => {
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
         const rents = await RentsModel.find({
-            createdAt: { $gte: startDate, $lte: endDate }
+            createdAt: { $gte: startDate, $lte: endDate },
+            is_deleted: false
         }).populate({path: "tenantId", model: "tenant" , populate: {path: "unit", model: "unit"}});
 
         const TotalDue = await TenantModel.aggregate([
