@@ -53,7 +53,7 @@ const TenantsSchema = new Schema({
         required: true,
     },
     rent: {
-        type: String,
+        type: Number,
     },
     deposit: {
         type: String,

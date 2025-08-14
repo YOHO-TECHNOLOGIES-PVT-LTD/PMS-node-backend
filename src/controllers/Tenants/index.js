@@ -149,8 +149,8 @@ export const updateTenantByUUID = async (req, res) => {
         await ActivityLogModel.create({
             userId:user._id,
             title:'update tenant info',
-            details:`${user.first_name} to update the tenant info in ${tenant._id}`,
-            action:'findOneAndUpdate'
+            details:`${user.first_name} to update the tenant info in "${tenant._id}"`,
+            action:'Update'
         })
 
         return res.status(200).json({
@@ -168,17 +168,15 @@ export const deleteTenantByUUID = async (req, res) => {
     try {
         const { uuid } = req.params
         const user = req.user
-        const tenant = await TenantModel.findOneAndUpdate(
-            { uuid: uuid },
-            { is_deleted: true },
-            { new: true }
+        const tenant = await TenantModel.findOneAndDelete(
+            { uuid: uuid }
         );
 
         await ActivityLogModel.create({
             userId:user._id,
             title:'soft detele tenant info',
-            details:`${user.first_name} to deleted the tenant info in id ${tenant._id}`,
-            action:'findOneAndUpdate'
+            details:`${user.first_name} to deleted the tenant info in id "${tenant._id}"`,
+            action:'delete'
         })
 
         if (!tenant) {

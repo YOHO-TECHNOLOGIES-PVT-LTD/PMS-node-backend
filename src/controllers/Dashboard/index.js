@@ -3,6 +3,7 @@ import { RentsModel } from "../../models/Rent/index.js";
 import { TenantModel } from "../../models/Tenants/index.js";
 import moment from "moment";
 import { UnitsModel } from "../../models/Units/index.js";
+import { maintenance } from "../../models/maintenance/index.js";
 
 export const dashBoardReports = async (req, res) => {
     try {
@@ -111,11 +112,25 @@ export const dashBoardReports = async (req, res) => {
         const monthlyRevenueGraph = await RentsModel.aggregate([
             { $match: { status: "paid" } },
             {
-                $group: {
-                    _id: { year: { $year: "$paymentDueDay" }, month: { $month: "$paymentDueDay" } },
-                    total: { $sum: "$amount" }
+                $lookup: {
+                    from: "tenants",
+                    localField: "tenantId",
+                    foreignField: "_id",
+                    as: "tenant"
                 }
             },
+            { $unwind: "$tenant" },
+
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$paymentDueDay" },
+                        month: { $month: "$paymentDueDay" }
+                    },
+                    total: { $sum: "$tenant.rent" }
+                }
+            },
+
             { $sort: { "_id.year": 1, "_id.month": 1 } }
         ]);
 
@@ -185,29 +200,33 @@ export const dashBoardReports = async (req, res) => {
             }
         ]);
 
+        const rentdata = await RentsModel.find().populate({path:"tenantId",select:"rent _id"})
+        const maintain = await maintenance.find()
+        const rentCollectionGraph = generateReport(rentdata,maintain)
 
-        const rentCollectionGraph = await RentsModel.aggregate([
-            {
-                $group: {
-                    _id: { year: { $year: "$paymentDueDay" }, month: { $month: "$paymentDueDay" } },
-                    totalExpected: { $sum: "$amount" },
-                    collected: {
-                        $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amount", 0] }
-                    }
-                }
-            },
-            {
-                $addFields: {
-                    collectionRate: {
-                        $cond: {
-                            if: { $eq: ["$totalExpected", 0] },
-                            then: 0,
-                            else: { $multiply: [{ $divide: ["$collected", "$totalExpected"] }, 100] }
-                        }
-                    }
-                }
-            }
-        ]);
+
+        // const rentCollectionGraph = await RentsModel.aggregate([
+        //     {
+        //         $group: {
+        //             _id: { year: { $year: "$paymentDueDay" }, month: { $month: "$paymentDueDay" } },
+        //             totalExpected: { $sum: "$amount" },
+        //             collected: {
+        //                 $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amount", 0] }
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $addFields: {
+        //             collectionRate: {
+        //                 $cond: {
+        //                     if: { $eq: ["$totalExpected", 0] },
+        //                     then: 0,
+        //                     else: { $multiply: [{ $divide: ["$collected", "$totalExpected"] }, 100] }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // ]);
 
         res.status(200).json({
             data: {
@@ -236,3 +255,119 @@ export const dashBoardReports = async (req, res) => {
         });
     }
 };
+
+
+function generateReport(data,expence){
+    try {
+        const monthly={
+            jan:{exp:0,rev:0},
+            feb:{exp:0,rev:0},
+            mar:{exp:0,rev:0},
+            apr:{exp:0,rev:0},
+            may:{exp:0,rev:0},
+            jun:{exp:0,rev:0},
+            jul:{exp:0,rev:0},
+            aug:{exp:0,rev:0},
+            sep:{exp:0,rev:0},
+            oct:{exp:0,rev:0},
+            nov:{exp:0,rev:0},
+            dec:{exp:0,rev:0},
+        }
+
+        data.forEach((list)=>{
+            const month = new Date(list?.createdAt).getMonth()
+
+            switch(month){
+                case 0:
+                    monthly.jan.rev += list?.tenantId?.rent
+                    break;
+                case 1:
+                    monthly.feb.rev += list?.tenantId?.rent
+                    break;
+                case 2:
+                    monthly.mar.rev += list?.tenantId?.rent
+                    break;
+                case 3:
+                    monthly.apr.rev += list?.tenantId?.rent
+                    break;
+                case 4:
+                    monthly.may.rev += list?.tenantId?.rent
+                    break;
+                case 5:
+                    monthly.jun.rev += list?.tenantId?.rent
+                    break;
+                case 6:
+                    monthly.jul.rev += list?.tenantId?.rent
+                    break;
+                case 7:
+                    monthly.aug.rev += list?.tenantId?.rent
+                    break;
+                case 8:
+                    monthly.sep.rev += list?.tenantId?.rent
+                    break;
+                case 9:
+                    monthly.oct.rev += list?.tenantId?.rent
+                    break;
+                case 10:
+                    monthly.nov.rev += list?.tenantId?.rent
+                    break;
+                case 11:
+                    monthly.dec.rev += list?.tenantId?.rent
+                    break;
+                default:
+                    throw new Error("month not correct")
+            }
+        })
+
+
+        expence.forEach((list)=>{
+            const month = new Date(list?.createdAt).getMonth()
+
+            switch(month){
+                case 0:
+                    monthly.jan.exp += list?.estmate_cost
+                    break;
+                case 1:
+                    monthly.feb.exp += list?.estmate_cost
+                    break;
+                case 2:
+                    monthly.mar.exp += list?.estmate_cost
+                    break;
+                case 3:
+                    monthly.apr.exp += list?.estmate_cost
+                    break;
+                case 4:
+                    monthly.may.exp += list?.estmate_cost
+                    break;
+                case 5:
+                    monthly.jun.exp += list?.estmate_cost
+                    break;
+                case 6:
+                    monthly.jul.exp += list?.estmate_cost
+                    break;
+                case 7:
+                    monthly.aug.exp += list?.estmate_cost
+                    break;
+                case 8:
+                    monthly.sep.exp += list?.estmate_cost
+                    break;
+                case 9:
+                    monthly.oct.exp += list?.estmate_cost
+                    break;
+                case 10:
+                    monthly.nov.exp += list?.estmate_cost
+                    break;
+                case 11:
+                    monthly.dec.exp += list?.estmate_cost
+                    break;
+                default:
+                    throw new Error("month not correct")
+            }
+        })
+
+        return monthly
+
+    } catch (error) {
+        console.log(error)
+    }
+}
