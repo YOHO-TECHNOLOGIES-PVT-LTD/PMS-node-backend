@@ -33,7 +33,8 @@ export const createUnit = async (req, res) => {
             userId: user._id,
             title: 'create new unit',
             details: `${user.first_name} to create new units`,
-            action: 'save'
+            action: 'Create',
+            activity_type: 'unit'
         })
 
         return res.status(201).json({
@@ -130,7 +131,8 @@ export const updateUnitByUUID = async (req, res) => {
             userId: user._id,
             title: 'update unit info',
             details: `${user.first_name} to update the unit info by id ${unit._id}`,
-            action: 'findOneAndUpdate'
+            action: 'Update',
+            activity_type: 'unit'
         })
 
         return res.status(200).json({
@@ -162,7 +164,8 @@ export const deleteUnitByUUID = async (req, res) => {
             userId: user._id,
             title: 'soft delete for unit',
             details: `${user.first_name} to deleted the unit id ${unit._id}`,
-            action: 'findOneAndUpdate'
+            action: 'Delete',
+            activity_type: 'unit'
         })
 
         return res.status(200).json({ success: true, message: "Unit deleted successfully" });

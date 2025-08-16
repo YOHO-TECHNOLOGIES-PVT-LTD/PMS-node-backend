@@ -42,6 +42,21 @@ export const markedAsRead = async (req, res) => {
     }
 }
 
+export const markedAsAllRead = async (req, res) => {
+    try {
+        const updated = await NotifyModel.updateMany({is_read: false}, {$set: {is_read: true}});
+        return res.status(200).json({
+            success: true,
+            message: "Updated notification all marked as read"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 export const deleteNotify = async (req, res) => {
     try {
         const { uuid } = req.params;

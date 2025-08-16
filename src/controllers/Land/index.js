@@ -50,7 +50,8 @@ export const createLand = async (req, res) => {
             userId: user?._id,
             title:`new land added`,
             details:`${user?.first_name} to added new land details.`,
-            action:'save'
+            action:'Create',
+            activity_type: 'land'
         })
 
         return res.status(201).json({
@@ -128,7 +129,8 @@ export const updateLandByUUID = async (req, res) => {
             userId: user._id,
             title:`update land info`,
             details:`change the db info for land id is ${Land._id} and ${Land.land_name} `,
-            action:`findOneAndUpdate`,
+            action:`Update`,
+            activity_type: 'land'
         })
 
         return res.status(200).json({
@@ -160,7 +162,8 @@ export const deleteLandByUUID = async (req, res) => {
             userId:user._id,
             title:'soft delete',
             details:`to delete the land ${Land.land_name} and id ${Land._id} in db`,
-            action:'findOneAndUpdate'
+            action:'Delete',
+            activity_type: 'land'
         })
 
         return res.status(200).json({ success: true, message: "Land deleted successfully" });

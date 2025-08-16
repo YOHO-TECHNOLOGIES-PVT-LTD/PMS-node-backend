@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import {v4 as uuid} from "uuid"
 
 const NotificationSchema = new Schema({
     title: {
@@ -25,6 +26,10 @@ const NotificationSchema = new Schema({
     is_deleted: {
         type: Boolean,
         default: false
+    },
+    uuid:{
+        type: String,
+        default: uuid
     }
 }, {timestamps: true})
 

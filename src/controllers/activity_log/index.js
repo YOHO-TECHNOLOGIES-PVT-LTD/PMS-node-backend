@@ -3,7 +3,7 @@ import { ActivityLogModel } from "../../models/activity_log/index.js"
 
 export const GetAllActivity = async (req, res) => {
     try {
-        let { page = 1, perpage = 10 } = req.query;
+        let { page = 1, perpage = 5 } = req.query;
         page = parseInt(page);
         perpage = parseInt(perpage);
 

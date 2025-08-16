@@ -20,7 +20,8 @@ export const CreateMaintenance=async(req,res)=>{
             userId:user._id,
             title:'create new maintenance',
             details:`${user.first_name} to created new maintenance request`,
-            action:'save'
+            action:'Create',
+            activity_type: 'maintenance'
         })
 
         res.status(200).json({success:true,message:"new maintenance created",data})        
@@ -69,7 +70,8 @@ export const UpdateMaintenance=async(req,res)=>{
             userId:user._id,
             title:'update maintenance info',
             details:`${user.first_name} to update the maintenance id ${data._id}`,
-            action:'findOneAndUpdate',
+            action:'Update',
+            activity_type: 'maintenance'
         })
 
         res.status(200).json({success:true,message:"maintenance update success"})
@@ -88,7 +90,8 @@ export const UpdateMaintenanceStatus=async(req,res)=>{
             userId:user._id,
             title:'update status in maintenance',
             details:`${user.first_name} to update status in maintenance id ${data._id}`,
-            action:'findOneAndUpdate'
+            action:'Update',
+            activity_type: 'maintenance'
         })
 
         res.status(200).json({success:true,message:"maintenance update success"})
@@ -106,7 +109,8 @@ export const DeleteMaintenance=async(req,res)=>{
             userId:user._id,
             title:'delete maintenance',
             details:`${user.first_name} to deleted the maintenance id ${data._id}`,
-            action:'updateOne'
+            action:'Delete',
+            activity_type: 'maintenance'
         })
 
         res.status(200).json({success:true,message:"maintenance update success"})

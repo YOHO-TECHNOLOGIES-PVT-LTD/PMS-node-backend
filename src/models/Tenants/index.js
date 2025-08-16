@@ -77,9 +77,11 @@ const TenantsSchema = new Schema({
         },
         cgst: {
             type: String,
+            default: "0"
         },
         sgst: {
             type: String,
+            default: "0"
         },
         tds: {
             type: String

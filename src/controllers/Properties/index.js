@@ -50,7 +50,8 @@ export const createProperty = async (req, res) => {
             userId:user._id,
             title:'added new property',
             details:`${user.first_name} to added new property`,
-            action:'save'
+            action:'Create',
+            activity_type: 'property'
         })
 
         return res.status(201).json({
@@ -215,7 +216,8 @@ export const updatePropertyByUUID = async (req, res) => {
             userId:user._id,
             title:'update property info',
             details:`${user.first_name} to updated the property id ${property._id}`,
-            action:'findOneAndUpdate'
+            action:'Update',
+            activity_type: 'property'
         })
 
         return res.status(200).json({
@@ -246,7 +248,8 @@ export const deletePropertyByUUID = async (req, res) => {
             userId:user._id,
             title:'soft delete property',
             details:`${user.first_name} to deleted the property id ${property._id}`,
-            action:'findOneAndUpdate'
+            action:'Delete',
+            activity_type: 'property'
         })
         return res.status(200).json({ success: true, message: "Property deleted successfully" });
     } catch (error) {

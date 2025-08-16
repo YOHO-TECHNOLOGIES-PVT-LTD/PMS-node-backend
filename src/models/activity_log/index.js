@@ -25,6 +25,10 @@ const activitySchema = new mongoose.Schema({
         type:Boolean,
         default:false,
     },
+    activity_type:{
+        type: String,
+        enum: ["property", "unit", "tenant", "rent", "lease","land","maintenance"]
+    }
 },{
     timestamps:true
 })

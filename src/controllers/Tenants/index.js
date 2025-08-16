@@ -46,7 +46,8 @@ export const createTenant = async (req, res) => {
             userId:user._id,
             title:'create new tenant',
             details:`${user.first_name} to created new tenant are ${tenant.personal_information.full_name}`,
-            action:'save'
+            action:'Create',
+            activity_type: 'tenant'
         })
 
         return res.status(201).json({
@@ -150,7 +151,8 @@ export const updateTenantByUUID = async (req, res) => {
             userId:user._id,
             title:'update tenant info',
             details:`${user.first_name} to update the tenant info in "${tenant._id}"`,
-            action:'Update'
+            action:'Update',
+            activity_type: 'tenant'
         })
 
         return res.status(200).json({
@@ -176,7 +178,8 @@ export const deleteTenantByUUID = async (req, res) => {
             userId:user._id,
             title:'soft detele tenant info',
             details:`${user.first_name} to deleted the tenant info in id "${tenant._id}"`,
-            action:'delete'
+            action:'Delete',
+            activity_type: 'tenant'
         })
 
         if (!tenant) {
